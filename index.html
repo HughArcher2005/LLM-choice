@@ -44,10 +44,7 @@ body { margin: 0; font-family: Outfit, sans-serif; background: var(--paper); col
 .tabs button.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .panel { display: none; }
 .panel.on { display: block; }
-.layout { display: grid; grid-template-columns: 200px 1fr; gap: 28px; width: min(1080px, 92vw); margin: 0 auto; padding: 28px 0 80px; }
-.toc { position: sticky; top: 78px; align-self: start; display: flex; flex-direction: column; gap: 8px; }
-.toc a { color: var(--muted); text-decoration: none; font-size: 14px; }
-.toc a:hover { color: var(--ink); }
+.layout { width: min(820px, 92vw); margin: 0 auto; padding: 28px 0 80px; }
 article { min-width: 0; }
 h1, h2 { font-family: Fraunces, serif; font-weight: 600; letter-spacing: -0.03em; margin: 0; }
 h1 { font-size: clamp(40px, 6vw, 64px); line-height: 0.98; }
@@ -93,8 +90,7 @@ svg { width: 100%; height: auto; display: block; }
 .switch button.on { background: var(--green); border-color: var(--green); color: white; }
 .note { font-size: 15px; color: var(--muted); }
 @media (max-width: 860px) {
-  .layout, .row, .cards { grid-template-columns: 1fr; }
-  .toc { position: static; flex-direction: row; flex-wrap: wrap; }
+  .row, .cards { grid-template-columns: 1fr; }
   .top { flex-wrap: wrap; }
 }
 </style>
@@ -110,20 +106,6 @@ svg { width: 100%; height: auto; display: block; }
 
 <div class="panel on" id="how">
   <div class="layout">
-    <nav class="toc" aria-label="On this page">
-      <a href="#what">What it is</a>
-      <a href="#tokens">Tokens</a>
-      <a href="#vectors">Lists of numbers</a>
-      <a href="#attention">Looking at words</a>
-      <a href="#layers">Layers</a>
-      <a href="#chances">Chances</a>
-      <a href="#reply">A reply</a>
-      <a href="#loss">The loss</a>
-      <a href="#train">Training</a>
-      <a href="#weights">What you keep</a>
-      <a href="#wrong">Why it can be wrong</a>
-      <a href="#memory">Memory</a>
-    </nav>
     <article>
       <p class="kicker">From nothing</p>
       <h1>How an LLM works</h1>
