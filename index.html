@@ -146,6 +146,10 @@ svg { width: 100%; height: auto; display: block; }
         <dd>Showing the model real text, scoring each guess with the loss, and nudging the stored numbers a little. This happens many times. The loss never has to reach zero.</dd>
         <dt>Instruction tuning</dt>
         <dd>A later training pass, on examples of the reply a person wanted. The first pass teaches what usually comes next. This pass teaches the model to answer the request.</dd>
+        <dt>Fine-tuning</dt>
+        <dd>More training, starting from weights that already exist, on your own examples. The weights move, and you get a new file. Answering does not do this. The weights stay put while the model replies.</dd>
+        <dt>LoRA</dt>
+        <dd>A way to fine-tune by training a small set of extra numbers, while the original weights stay frozen. It uses far less memory than rewriting every weight.</dd>
         <dt>Weight</dt>
         <dd>One of the stored numbers inside the model. The weights stay put while the model answers. A new sentence is multiplied by them, and that multiplication produces the chances. They are not the list of possible next tokens.</dd>
         <dt>Open model</dt>
@@ -181,7 +185,7 @@ svg { width: 100%; height: auto; display: block; }
         <dt>Prompt</dt>
         <dd>The text you give the model before it starts guessing. On an API, the prompt leaves your machine. On a GPU you own, it stays there.</dd>
         <dt>Self-hosting</dt>
-        <dd>Running a published weight file on a computer you control. The prompt is multiplied there. A lab API is not self-hosting, even when the lab serves an open file.</dd>
+        <dd>Running a published weight file on a computer you control. The prompt is multiplied there. You can also keep training that file on your own examples. A lab API is not self-hosting, even when the lab serves an open file.</dd>
         <dt>Runner</dt>
         <dd>The program that loads the weights into VRAM and writes the next token. Your own software sends the prompt to the runner and reads the reply.</dd>
         <dt>Quantization</dt>
@@ -635,6 +639,18 @@ svg { width: 100%; height: auto; display: block; }
       <section class="block">
         <h2>A first run is a check, on practice text.</h2>
         <p>Pick an open file that fits on one board, including the conversation note. Load it with a runner. Send practice text that is not private, and read the answers. You are checking whether this file is good enough for the work. Private text belongs on a machine you control, after that check. A file that fails the check does not become worth a bigger machine.</p>
+      </section>
+
+      <section class="block">
+        <h2>You can keep training it on your own examples.</h2>
+        <p>Answering leaves the weights as they are. Training moves them. If you hold the file, you can show it a pile of your own text and run the same downhill step again. That later pass is fine-tuning. You start from a model that already knows language. You are teaching it a habit: the tone, the shape of the answer, the job. The new file is yours.</p>
+        <p>Write many examples of the reply you want. The loss scores each guess. The gradient nudges the numbers. After enough examples, the model tends to answer in that way on its own.</p>
+        <div class="cards">
+          <div class="card"><strong>The habit</strong><p>Fine-tuning is for how it acts. A long pile of your writing teaches it to sound like that pile, and to follow the kind of reply you showed it.</p></div>
+          <div class="card"><strong>The page</strong><p>A particular fact belongs in the prompt. Put the page there, or fetch the relevant pages first. The weights hold the habit. The prompt holds the page in front of it.</p></div>
+          <div class="card"><strong>The memory</strong><p>Rewriting every weight needs much more VRAM than answering, because the card must also keep the slope for each number. LoRA freezes the original file and trains a small set of extra numbers. That often fits on the same card that can already run the file.</p></div>
+        </div>
+        <p>The examples stay on the machine that does the training. On a GPU you own, that machine is yours. On a rental, the host can see the examples too. The license has to allow this further training. A closed API can sometimes train a copy for you, and the lab keeps that file.</p>
         <p class="note">The next tab is the three places the file can sit: their API, a rented GPU, or a GPU you own.</p>
       </section>
     </article>
