@@ -238,15 +238,15 @@ svg { width: 100%; height: auto; display: block; }
       </section>
 
       <section class="block" id="loss">
-        <h2>While learning, the miss is called the loss.</h2>
-        <p>During training, the real next token is already written in the example. The loss is how surprised the model was. It is not the distance between two word-numbers, and it is not that distance squared.</p>
+        <h2>Learning scores each guess.</h2>
+        <p>So far we watched a finished model answer. Learning is how those numbers got good. Take a real sentence and cover the next token. The model gives that token a chance. The loss is the score for that guess: small when the chance was high, large when the model barely considered the token that was actually there.</p>
         <div class="formula">loss = −log(chance of the real next token)</div>
         <label for="chance">Move the chance it gave the real token.</label>
         <input class="slider" id="chance" type="range" min="1" max="100" value="20">
         <p class="big"><span id="chance-label">20%</span> chance · loss <span id="loss-label">1.61</span></p>
         <p class="note">At 100% the loss is 0. The model was not surprised. At 1% the loss is about 4.6. It was very surprised. Language is unsure, so a trained model does not sit at 0.</p>
         <figure>
-          <svg viewBox="0 0 520 200" role="img" aria-label="Loss falls toward zero as the chance of the real token rises, and never needs to be squared">
+          <svg viewBox="0 0 520 200" role="img" aria-label="Loss falls toward zero as the chance of the real token rises">
             <line x1="40" y1="16" x2="40" y2="160" stroke="#1c1915"/>
             <line x1="40" y1="160" x2="490" y2="160" stroke="#1c1915"/>
             <text x="8" y="16" font-size="12" font-family="Outfit, sans-serif" fill="#5c564c">loss</text>
@@ -261,7 +261,7 @@ svg { width: 100%; height: auto; display: block; }
 
       <section class="block" id="train">
         <h2>Training is a small step downhill, repeated.</h2>
-        <p>You do not solve for the point where the slope is zero. There are billions of inner numbers. Calculus still supplies the slope, called the gradient. Each example, every number takes a small step against that slope.</p>
+        <p>The loss is one number. The model is billions of numbers. To make the loss smaller, each number has to move a little. The slope of the loss, called the gradient, says which way. One example nudges every number. The next example nudges them again.</p>
         <div class="formula">new number = old number − step size × slope</div>
         <figure>
           <svg viewBox="0 0 520 210" role="img" aria-label="Training steps walk down a curve and stop above zero">
@@ -276,13 +276,13 @@ svg { width: 100%; height: auto; display: block; }
             <text x="300" y="132" font-size="13" font-family="Outfit, sans-serif" fill="#5c564c">stops above zero</text>
             <text x="400" y="196" font-size="12" font-family="Outfit, sans-serif" fill="#5c564c">examples</text>
           </svg>
-          <figcaption>Each dot is a nudge, not a solved equation. The green dot is “good enough,” not “perfect.”</figcaption>
+          <figcaption>Each dot is one pass over an example. The green dot is where training stops. Some surprise is left, because the next word is often unsure.</figcaption>
         </figure>
       </section>
 
       <section class="block" id="weights">
         <h2>The trained model is the numbers you keep.</h2>
-        <p>The articles, books, and code were the practice. They are not what you ship. What you ship is the weights: the inner numbers after all those steps. Copy the weights and you have copied the model. That file is what an open-source model actually is.</p>
+        <p>The articles and code were the practice text. They are not the model. The model is the weights: the inner numbers after all those steps. Copy that file and you have copied the model. When the file is published for anyone to run, it is called an open model.</p>
       </section>
 
       <section class="block" id="wrong">
@@ -293,7 +293,7 @@ svg { width: 100%; height: auto; display: block; }
       <section class="block" id="memory">
         <h2>To answer, those numbers have to sit in memory.</h2>
         <p>The weights are large. While the model runs, they sit in fast memory, usually on a GPU. A smaller open model can fit on one card. A frontier-size model needs many cards. Calling an API means the numbers sit on someone else’s cards.</p>
-        <p class="note">That is the whole bridge to the next tab. The mechanism is the same. The question is who holds the weights, and who can see the prompt.</p>
+        <p class="note">The next tab is about who owns the computer that holds these numbers, and who can see the text you type.</p>
       </section>
     </article>
   </div>
@@ -302,17 +302,17 @@ svg { width: 100%; height: auto; display: block; }
 <div class="panel" id="choice">
   <div class="layout" style="grid-template-columns: 1fr;">
     <article>
-      <p class="kicker">After the mechanism</p>
+      <p class="kicker">Where it runs</p>
       <h1>Who holds the numbers</h1>
-      <p>Same model, three homes. Rank them in this order: nobody else keeps the prompt, then nobody can switch you off, then quality, then cost.</p>
+      <p>The model is a file of numbers. Some computer has to hold that file while it answers. There are three common ways to do that.</p>
       <div class="cards">
-        <div class="card"><strong>API</strong><p>Best quality today. An ordinary API can keep the prompt, and the lab can cut you off.</p></div>
-        <div class="card"><strong>Rent</strong><p>You run an open model on someone else’s card. The host can see the box and can turn it off. Fine for a few hours of fake data.</p></div>
-        <div class="card buy"><strong>Buy</strong><p>The weights and the prompt stay on a machine you own. Harder. This is the home that meets the first two rules.</p></div>
+        <div class="card"><strong>API</strong><p>You send your text to a company. Their computers run the model. They can store what you sent, and they can close your account.</p></div>
+        <div class="card"><strong>Rent</strong><p>You hire someone else’s graphics card for a while and run an open model on it. They can see the machine, and they can switch it off.</p></div>
+        <div class="card buy"><strong>Buy</strong><p>You own the computer. The file and the text stay there. Setup is harder. No other company has to see the prompt or keep the model running.</p></div>
       </div>
       <section class="block">
-        <h2>Do not buy a pile of cards yet.</h2>
-        <p>Pick one task where a cheaper model was already close. Write a mock with no client names or numbers. Run one open model, score it blind, and turn the rented machine off. If it gets near the middle model, ask the infra advisor about one card you own. Leave the wide gaps on the paid model.</p>
+        <h2>A large model needs more cards.</h2>
+        <p>A smaller open model can fit on one graphics card. A frontier-size model needs many cards in a data centre. Renting one card is a way to try a smaller open model on practice text. Owning the machine is the later step, once that trial is worth keeping.</p>
       </section>
     </article>
   </div>
