@@ -105,6 +105,7 @@ svg { width: 100%; height: auto; display: block; }
     <button type="button" data-tab="defs">Definitions</button>
     <button type="button" class="on" data-tab="how">How LLMs work</button>
     <button type="button" data-tab="hardware">The hardware</button>
+    <button type="button" data-tab="models">Models</button>
     <button type="button" data-tab="choice">The choice</button>
   </nav>
 </header>
@@ -145,7 +146,15 @@ svg { width: 100%; height: auto; display: block; }
         <dt>Weight</dt>
         <dd>One of the stored numbers inside the model. The weights stay put while the model answers. A new sentence is multiplied by them, and that multiplication produces the chances. They are not the list of possible next tokens.</dd>
         <dt>Open model</dt>
-        <dd>A file of weights that anyone is allowed to copy and run. The practice text is not the model. The weights are.</dd>
+        <dd>A file of weights you are allowed to copy and run. The practice text is not the model. The weights are. Most of these are open weights, not fully open source.</dd>
+        <dt>Frontier</dt>
+        <dd>Among the most capable models available at the moment. The word says nothing about whether you can download the file. A frontier model is often closed, and a few open-weight models sit near that front too.</dd>
+        <dt>Open weights</dt>
+        <dd>The weight file is published. You can run it on a GPU you rent or own. The training text and the full training recipe usually stay private.</dd>
+        <dt>Open source</dt>
+        <dd>Weights, training code, and enough of the data to rebuild the model, under a license that allows that. This is rarer than a published weight file.</dd>
+        <dt>Closed model</dt>
+        <dd>The weights stay at the lab. You send a prompt to their API and get tokens back. You never receive the file.</dd>
         <dt>CPU</dt>
         <dd>The ordinary processor in a computer. It is built for one job at a time: open a file, branch, decide.</dd>
         <dt>Chip</dt>
@@ -450,6 +459,66 @@ svg { width: 100%; height: auto; display: block; }
           <figcaption>One card is a trial. A frontier-size model is a row of cards in a building that can feed them electricity and take the heat away.</figcaption>
         </figure>
         <p class="note">The next tab is who owns that machine, and who can see the text you type into it.</p>
+      </section>
+    </article>
+  </div>
+</div>
+
+<div class="panel" id="models">
+  <div class="layout">
+    <article>
+      <p class="kicker">Two questions</p>
+      <h1>Open source and frontier</h1>
+      <p>These words answer different questions. Frontier asks how good the model is. Open asks whether you can hold the file. A model can be either, both, or neither.</p>
+
+      <section class="block">
+        <h2>Frontier means near the front.</h2>
+        <p>A frontier model is one of the most capable models you can use right now. It handles the hardest writing and reasoning. The usual way to reach one is an API: you send text, the lab’s computers answer, and you never get the weights. That is a closed frontier model. The word frontier does not mean secret. It only means the model is at the front of what current models can do.</p>
+      </section>
+
+      <section class="block">
+        <h2>Open weights means the file is published.</h2>
+        <p>An open-weight model is a weight file you can download and run. A GPU you rent or own does the multiplications. The lab usually keeps the training text and the full recipe, so you can run the model without being able to rebuild it from nothing. People often call this open source. The tighter name is open weights.</p>
+        <div class="formula">open source = weights + training code + the data to rebuild it</div>
+        <p class="note">If any of those three is missing, you have a published model, not a model you could reproduce.</p>
+      </section>
+
+      <section class="block">
+        <h2>The two lines cross.</h2>
+        <p>A smaller open file can fit on one GPU and still sit well behind the frontier. A huge open file can sit near the frontier and still need a row of GPUs in a data centre. A closed API can be the frontier, and a closed API can also be a smaller, cheaper model. Quality and ownership are separate.</p>
+        <figure>
+          <svg viewBox="0 0 560 280" role="img" aria-label="A grid with closed or open on one side and ordinary or frontier on the other">
+            <line x1="150" y1="20" x2="150" y2="230" stroke="#1c1915"/>
+            <line x1="150" y1="230" x2="530" y2="230" stroke="#1c1915"/>
+            <text x="8" y="40" font-family="Outfit, sans-serif" font-size="13" fill="#5c564c">frontier</text>
+            <text x="8" y="210" font-family="Outfit, sans-serif" font-size="13" fill="#5c564c">ordinary</text>
+            <text x="170" y="258" font-family="Outfit, sans-serif" font-size="13" fill="#5c564c">closed</text>
+            <text x="460" y="258" font-family="Outfit, sans-serif" font-size="13" fill="#5c564c">open weights</text>
+            <rect x="175" y="36" width="150" height="80" rx="12" fill="#1d4e89"/>
+            <text x="250" y="72" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="14">top API</text>
+            <text x="250" y="92" text-anchor="middle" fill="#d9d1c3" font-family="Outfit, sans-serif" font-size="12">file stays at the lab</text>
+            <rect x="360" y="36" width="150" height="80" rx="12" fill="#0f6e56"/>
+            <text x="435" y="72" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="14">huge open file</text>
+            <text x="435" y="92" text-anchor="middle" fill="#d9d1c3" font-family="Outfit, sans-serif" font-size="12">many GPUs</text>
+            <rect x="175" y="136" width="150" height="80" rx="12" fill="#d9d1c3"/>
+            <text x="250" y="172" text-anchor="middle" fill="#1c1915" font-family="Outfit, sans-serif" font-size="14">smaller API</text>
+            <text x="250" y="192" text-anchor="middle" fill="#5c564c" font-family="Outfit, sans-serif" font-size="12">still closed</text>
+            <rect x="360" y="136" width="150" height="80" rx="12" fill="#c4b8a8"/>
+            <text x="435" y="172" text-anchor="middle" fill="#1c1915" font-family="Outfit, sans-serif" font-size="14">one-GPU file</text>
+            <text x="435" y="192" text-anchor="middle" fill="#5c564c" font-family="Outfit, sans-serif" font-size="12">open, not the front</text>
+          </svg>
+          <figcaption>Left is closed, right is a file you can hold. Top is the most capable, bottom is ordinary. A model’s box depends on both facts, not on one label.</figcaption>
+        </figure>
+      </section>
+
+      <section class="block">
+        <h2>What you give up on each side.</h2>
+        <div class="cards">
+          <div class="card"><strong>Closed frontier</strong><p>The strongest answers, and no GPU to run. The prompt goes to the lab. They can store it, change the model, or close the account.</p></div>
+          <div class="card"><strong>Open weights</strong><p>You can hold the file. On your own GPU the prompt stays with you. A small file fits one board. A file near the frontier needs many boards.</p></div>
+          <div class="card"><strong>Open source</strong><p>Rare. You would get the weights and enough code and data to train that model again. Running a copy does not require that.</p></div>
+        </div>
+        <p class="note">The next tab is where the machine sits: their API, a rented GPU, or a GPU you own.</p>
       </section>
     </article>
   </div>
