@@ -31,7 +31,7 @@ body { margin: 0; font-family: Outfit, sans-serif; background: var(--paper); col
   backdrop-filter: blur(8px);
 }
 .brand { font-family: Fraunces, serif; font-size: 20px; }
-.tabs { display: flex; gap: 8px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
 .tabs button {
   font: 600 14px Outfit, sans-serif;
   border: 1px solid var(--line);
@@ -106,6 +106,7 @@ svg { width: 100%; height: auto; display: block; }
     <button type="button" class="on" data-tab="how">How LLMs work</button>
     <button type="button" data-tab="hardware">The hardware</button>
     <button type="button" data-tab="models">Models</button>
+    <button type="button" data-tab="host">Self-hosting</button>
     <button type="button" data-tab="choice">The choice</button>
   </nav>
 </header>
@@ -171,6 +172,16 @@ svg { width: 100%; height: auto; display: block; }
         <dd>A way to send your text to a company’s computers and get a reply back. Their machines hold the weights. They can store what you sent.</dd>
         <dt>Prompt</dt>
         <dd>The text you give the model before it starts guessing. On an API, the prompt leaves your machine. On a GPU you own, it stays there.</dd>
+        <dt>Self-hosting</dt>
+        <dd>Running a published weight file on a computer you control. The prompt is multiplied there. A lab API is not self-hosting, even when the lab serves an open file.</dd>
+        <dt>Runner</dt>
+        <dd>The program that loads the weights into VRAM and writes the next token. Your own software sends the prompt to the runner and reads the reply.</dd>
+        <dt>Quantization</dt>
+        <dd>Storing each weight with fewer bits so the file uses less VRAM. At 4 bits the file is about a quarter of the half-precision size. The answers get a little less exact.</dd>
+        <dt>KV cache</dt>
+        <dd>Extra memory used while answering, so the model can look back at the prompt and the tokens it has already written. It grows with the length of the conversation, and with how many conversations run at once. The weights do not grow.</dd>
+        <dt>License</dt>
+        <dd>The rules that come with the weight file. They say who may run it, and for what. A published file is not a promise that every use is allowed.</dd>
       </dl>
     </article>
   </div>
@@ -518,7 +529,90 @@ svg { width: 100%; height: auto; display: block; }
           <div class="card"><strong>Open weights</strong><p>You can hold the file. On your own GPU the prompt stays with you. A small file fits one board. A file near the frontier needs many boards.</p></div>
           <div class="card"><strong>Open source</strong><p>Rare. You would get the weights and enough code and data to train that model again. Running a copy does not require that.</p></div>
         </div>
-        <p class="note">The next tab is where the machine sits: their API, a rented GPU, or a GPU you own.</p>
+        <p class="note">The next tab is what changes when you run that file yourself.</p>
+      </section>
+    </article>
+  </div>
+</div>
+
+<div class="panel" id="host">
+  <div class="layout">
+    <article>
+      <p class="kicker">On your machine</p>
+      <h1>What self-hosting is</h1>
+      <p>Self-hosting means you download an open-weight file and a program on a computer you control does the multiplications. The prompt stays on that computer. You get tokens back from it, not from the lab that trained the model.</p>
+
+      <section class="block">
+        <h2>Where the prompt goes.</h2>
+        <p>The same open file can sit in three places. Only the last one keeps the prompt on hardware you own, with no account for a lab to close.</p>
+        <div class="cards">
+          <div class="card"><strong>Their API</strong><p>You send the prompt to a company. They hold the weights. They can store the text, change the model, or close the account. This is true even when the model they serve is an open file.</p></div>
+          <div class="card"><strong>A rented GPU</strong><p>You load the file and run it. The prompt is on their machine. They can see that machine, and they can switch it off.</p></div>
+          <div class="card buy"><strong>A GPU you own</strong><p>The file and the prompt stay on your computer. No other company has to see the text or keep the model running.</p></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>Three things have to be on the machine.</h2>
+        <p>The weight file, a runner, and enough VRAM. The runner is the program that loads the weights and writes the next token. Your own software talks to the runner on that same machine, the way it would talk to an API, except the address is yours.</p>
+        <figure>
+          <svg viewBox="0 0 560 150" role="img" aria-label="A prompt stays on your computer, the runner reads the weight file, and tokens come back">
+            <rect x="16" y="36" width="150" height="70" rx="12" fill="#1c1915"/>
+            <text x="91" y="68" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="15">your prompt</text>
+            <text x="91" y="88" text-anchor="middle" fill="#d9d1c3" font-family="Outfit, sans-serif" font-size="12">stays here</text>
+            <path d="M166 71 H210" stroke="#1c1915" stroke-width="2"/>
+            <rect x="210" y="28" width="150" height="86" rx="12" fill="#0f6e56"/>
+            <text x="285" y="68" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="15">runner</text>
+            <text x="285" y="88" text-anchor="middle" fill="#d9d1c3" font-family="Outfit, sans-serif" font-size="12">loads the file</text>
+            <path d="M360 71 H404" stroke="#1c1915" stroke-width="2"/>
+            <rect x="404" y="36" width="140" height="70" rx="12" fill="#1d4e89"/>
+            <text x="474" y="68" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="15">next tokens</text>
+            <text x="474" y="88" text-anchor="middle" fill="#d9d1c3" font-family="Outfit, sans-serif" font-size="12">come back</text>
+          </svg>
+          <figcaption>The lab is not in this picture. Once the file is on disk, the runner can answer with the network unplugged.</figcaption>
+        </figure>
+      </section>
+
+      <section class="block">
+        <h2>The file, the conversation, and a little spare.</h2>
+        <p>The hardware tab sizes the weight file alone: about 2 GB for each billion weights at half precision. A real run needs more than the file. While it answers, the runner keeps a note of the prompt and of the tokens already written, so the model can look back. That note is the KV cache. It grows when the conversation gets longer, and it grows again when several conversations run at once. The weights stay the same size. Leave a little VRAM free for the runner itself.</p>
+        <div class="formula">VRAM ≈ weight file + KV cache + a little spare</div>
+        <figure>
+          <svg viewBox="0 0 560 150" role="img" aria-label="One GPU’s memory split into weights, the conversation note, and spare room">
+            <rect x="16" y="28" width="528" height="70" rx="12" fill="none" stroke="#1c1915"/>
+            <rect x="24" y="36" width="330" height="54" rx="8" fill="#0f6e56"/>
+            <text x="189" y="68" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="14">weights</text>
+            <rect x="362" y="36" width="110" height="54" rx="8" fill="#1d4e89"/>
+            <text x="417" y="68" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="14">KV cache</text>
+            <rect x="480" y="36" width="52" height="54" rx="8" fill="#c4b8a8"/>
+            <text x="506" y="68" text-anchor="middle" fill="#1c1915" font-family="Outfit, sans-serif" font-size="13">spare</text>
+            <text x="16" y="128" font-family="Outfit, sans-serif" font-size="13" fill="#5c564c">all of this has to sit on one board · a second board’s memory does not help this chip</text>
+          </svg>
+          <figcaption>A file that just fills the card will fail on a long prompt. The weights fit, and the conversation note does not.</figcaption>
+        </figure>
+      </section>
+
+      <section class="block">
+        <h2>Fewer bits, so a larger file can fit.</h2>
+        <p>Quantization stores each weight with fewer bits. At half precision a weight is 2 bytes. At 4 bits it is about half a byte, so the file shrinks to about a quarter. A model that needed several boards can then fit on fewer of them. The answers get a little less exact. You traded some accuracy for room. You did not make a frontier model out of a smaller one.</p>
+        <div class="formula">4-bit memory in GB ≈ billions of weights × 0.5</div>
+        <p class="note">Add the KV cache and the spare on top of that. A short chat on one card is the case this number is for.</p>
+      </section>
+
+      <section class="block">
+        <h2>What you keep, and what you still do not have.</h2>
+        <div class="cards">
+          <div class="card"><strong>No account to close</strong><p>The lab can stop publishing new files. The copy already on your disk keeps answering. You choose when to download a newer one.</p></div>
+          <div class="card"><strong>The prompt stays</strong><p>On a machine you own, the text is multiplied there. A rented machine still belongs to the company that can see it.</p></div>
+          <div class="card"><strong>A license, and a quality limit</strong><p>The file comes with rules about who may run it. You still do not get the training text. A file that fits on one card is often behind the frontier.</p></div>
+        </div>
+        <p>One desktop card needs a normal plug and a fan. A file near the frontier needs a row of cards, a large power supply, and a room that can take the heat. That room is the data centre from the hardware tab. Self-hosting changes who holds the numbers. It does not change how much electricity a large file uses, or how good a small file is.</p>
+      </section>
+
+      <section class="block">
+        <h2>A first run is a check, on practice text.</h2>
+        <p>Pick an open file that fits on one board, including the conversation note. Load it with a runner. Send practice text that is not private, and read the answers. You are checking whether this file is good enough for the work. Private text belongs on a machine you control, after that check. A file that fails the check does not become worth a bigger machine.</p>
+        <p class="note">The next tab is the three places the file can sit: their API, a rented GPU, or a GPU you own.</p>
       </section>
     </article>
   </div>
