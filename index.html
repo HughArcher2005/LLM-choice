@@ -88,6 +88,19 @@ svg { width: 100%; height: auto; display: block; }
   cursor: pointer;
 }
 .switch button.on { background: var(--green); border-color: var(--green); color: white; }
+.subtabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+.subtabs button {
+  font: 600 15px Outfit, sans-serif;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+.subtabs button.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.subpanel { display: none; }
+.subpanel.on { display: block; }
 .note { font-size: 15px; color: var(--muted); }
 .defs { margin: 8px 0 0; }
 .defs dt { font-family: Fraunces, serif; font-size: 26px; margin-top: 22px; }
@@ -198,6 +211,10 @@ svg { width: 100%; height: auto; display: block; }
         <dd>Paying to use someone else’s GPU for a while. You run the open file. They own the machine, so they can see it and switch it off.</dd>
         <dt>Practice text</dt>
         <dd>Sentences used to train a model, or later to try a copy. The practice text is not the model. The weights are. A first self-hosted check uses stand-in sentences that are not private.</dd>
+        <dt>Zero data retention</dt>
+        <dd>A promise that a company does not keep the prompt and the reply after the answer is sent. A request their safety systems flag can still be kept. Every company in the path has to make the promise, or the prompt still sits with the one that did not.</dd>
+        <dt>Distillation</dt>
+        <dd>Training a new model on another model’s replies, so the new file imitates it. Anthropic’s usage policy requires their permission before Claude’s outputs are used this way.</dd>
       </dl>
     </article>
   </div>
@@ -651,27 +668,143 @@ svg { width: 100%; height: auto; display: block; }
           <div class="card"><strong>The memory</strong><p>Rewriting every weight needs much more VRAM than answering, because the card must also keep the slope for each number. LoRA freezes the original file and trains a small set of extra numbers. That often fits on the same card that can already run the file.</p></div>
         </div>
         <p>The examples stay on the machine that does the training. On a GPU you own, that machine is yours. On a rental, the host can see the examples too. The license has to allow this further training. A closed API can sometimes train a copy for you, and the lab keeps that file.</p>
-        <p class="note">The next tab is the three places the file can sit: their API, a rented GPU, or a GPU you own.</p>
+        <p class="note">The next tab splits those three places for Skillify, with the prices and the rules that were published.</p>
       </section>
     </article>
   </div>
 </div>
 
 <div class="panel" id="choice">
-  <div class="layout" style="grid-template-columns: 1fr;">
+  <div class="layout">
     <article>
-      <p class="kicker">Where it runs</p>
-      <h1>Who holds the numbers</h1>
-      <p>The model is a file of numbers. Some computer has to hold that file while it answers. There are three common ways to do that.</p>
-      <div class="cards">
-        <div class="card"><strong>API</strong><p>You send your text to a company. Their computers run the model. They can store what you sent, and they can close your account.</p></div>
-        <div class="card"><strong>Rent</strong><p>You hire someone else’s graphics card for a while and run an open model on it. They can see the machine, and they can switch it off.</p></div>
-        <div class="card buy"><strong>Buy</strong><p>You own the computer. The file and the text stay there. Setup is harder. No other company has to see the prompt or keep the model running.</p></div>
+      <p class="kicker">The decision</p>
+      <h1>The choice for Skillify</h1>
+      <p>Skillify asks a model for a structured trade book. The value is the judgment in that book, and the book is easy to copy if someone else can read the prompt. Each option below is scored on the same six questions: who can read it, who can stop it, how good the guesses are, how long the PM waits, what it costs, and who you have to deal with to set it up.</p>
+      <p>Prices below are list prices and shop listings read on 9 October 2026. A figure marked [estimate] is arithmetic on those listings, or a number I could not find a live quote for. Nothing here is a negotiated Skillify contract.</p>
+      <p class="note">Seen in the Skillify files: <code>lib/llm-client.js</code> sends the live call through OpenRouter, pinned to zero-data-retention endpoints on Amazon Bedrock or Google Vertex only. The default model is <code>anthropic.claude-opus-5</code>, with thinking effort set to high. If that call fails on a set list of errors, the same key is retried on Grok 4.6 through xAI only, also marked zero data retention. Direct Anthropic and OpenAI are not live paths. <code>privacy-minimised-anthropic.js</code> runs two passes, baseline then guided, and caps each reply at 16,384 tokens.</p>
+
+      <div class="subtabs" role="tablist" aria-label="Where Skillify runs">
+        <button type="button" class="on" data-sub="api">Frontier API</button>
+        <button type="button" data-sub="rent">Rented</button>
+        <button type="button" data-sub="own">Owned</button>
       </div>
-      <section class="block">
-        <h2>A large model needs more cards.</h2>
-        <p>A smaller open model can fit on one graphics card. A frontier-size model needs many cards in a data centre. Renting one card is a way to try a smaller open model on practice text. Owning the machine is the later step, once that trial is worth keeping.</p>
-      </section>
+
+      <div class="subpanel on" id="sub-api">
+        <section class="block">
+          <h2>Privacy</h2>
+          <p>The prompt leaves your machine. It goes to OpenRouter, then to Bedrock or Vertex, where Claude Opus 5 holds the weights. The packet is kept short on purpose: a mandate, a few instruments, a short view, a few public prices, and, on the second pass, the titles of the checks. The full private write-ups of those checks are not what the code sends. What does leave is enough to reconstruct the book: the stance, the sizes, and the fact that this PM asked.</p>
+          <p>OpenRouter’s own docs say a request with zero data retention is routed only to endpoints that do not store the prompt, and that OpenRouter itself does not keep prompts unless logging is turned on. <code>data_collection: deny</code> is how the code also refuses providers that may store data or train on it. Bedrock’s docs say a retention mode of “none” means AWS does not write the request to durable storage and does not share it with the model provider. Anthropic’s Bedrock terms say Anthropic may not train on that customer content, and that the usage data Anthropic receives excludes the content.</p>
+          <p>That is a stack of promises, not a single lock. OpenRouter still sees the prompt in transit. AWS or Google still runs the machine. If a safety system flags the call, Anthropic’s direct API policy keeps flagged inputs and outputs for up to two years, and even a zero-data-retention deal allows that. Bedrock’s newer “covered” models can require a 30-day review inside AWS. AWS says Claude models released before Claude Fable 5 do not have that new requirement. Opus 5 is the model in the code. Confirm on the AWS account that this model is actually allowed at retention mode “none”, because a model that requires retention will be blocked, or kept, depending on the setting.</p>
+          <p class="note">Seen in the Skillify files: the OpenRouter flags are <code>zdr: true</code>, <code>data_collection: 'deny'</code>, <code>allow_fallbacks: false</code>, and <code>only: ['amazon-bedrock', 'google-vertex']</code>. The Grok retry is <code>only: ['xai']</code>. Sources: <a href="https://openrouter.ai/docs/guides/features/zdr">OpenRouter ZDR</a>, <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/data-retention.html">AWS Bedrock retention</a>, <a href="https://aws.amazon.com/legal/bedrock/third-party-models/">Anthropic on Bedrock</a>, <a href="https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data">Anthropic commercial retention</a>.</p>
+        </section>
+        <section class="block">
+          <h2>Who can stop it</h2>
+          <p>Anthropic’s usage policy says that if they suspect a violation they may warn, throttle, limit, suspend, or terminate access. Finance is a high-risk use when the product makes a personalized recommendation to buy, sell, hold, or allocate among specific investments. The rule is a qualified person, with the authority to change the output, must review it before it is delivered as advice or used to implement a decision, and the person affected must be told AI was used. A book that a portfolio manager reads and then decides on fits that review. A book that is sent straight through to an order does not. They can cut the key off for that, or for a mistake in how they read the traffic. An outage cuts it off with no policy judgment at all.</p>
+          <p>The same call can also die because OpenRouter, AWS, or Google is down, or because the account is unpaid. On the listed errors the code does not stop. It retries the prompt on Grok 4.6 at xAI. That keeps a reply coming, and it means xAI can see the book on the days Opus fails. xAI can apply their own terms to that retry. None of these companies has to keep serving Skillify.</p>
+          <p class="note">Seen in the Skillify files: fallback statuses include 401, 403, 408, 429, and 5xx, then Grok 4.6. Sources: <a href="https://www-cdn.anthropic.com/files/4zrzovbb/website/6ae2f5bb8675bcd9fac006125817ba1393b396e4.pdf">Anthropic Usage Policy PDF</a>, <a href="https://www.anthropic.com/news/2026-usage-policy-update">Anthropic’s 2026 policy note</a>.</p>
+        </section>
+        <section class="block">
+          <h2>Quality</h2>
+          <p>This is the frontier end of the models tab. The weights stay at the lab. You are renting the guesses. On Artificial Analysis’s Intelligence Index, read on 9 October 2026, Claude Opus 5.5 at maximum effort scores 58, the highest on that board. The same model at high effort, which is the effort Skillify sets, scores 54. The best open-weight models on that same index are MiMo-V2.6-Pro at 46, GLM-5.3 at maximum at 45, and Kimi K3 at maximum at 44. Opus 5.5’s list price is $4 per million input tokens and $20 per million output tokens. Opus 5, the model named in the code, is listed at $5 and $25. I did not find an Intelligence Index row for Opus 5 itself on the page I read. Anthropic’s own write-up says Opus 5.5 leads Opus 5 by 11 points on one coding benchmark, Terminal-Bench 4.0.</p>
+          <p>Those scores are general tests: agents, code, science, professional writing. They are not Skillify packets. A model can win the index and still miss a mandate, a size, or a flat sleeve. The useful fact is the gap: the open files nearest the front are still several points behind the frontier model Skillify is paying for, and the small file that fits on one GPU is further behind again. DeepSeek V4.1 Flash at maximum scores 39 on the same index.</p>
+          <p>Fine-tuning does not run on this path. The weights are not yours. You cannot nudge them. Instruction tuning already happened at the lab. What you can change is the packet: the checks you invite, the examples in the prompt, the schema. That changes the habit for one call. It does not change the file.</p>
+          <p class="note">Sources: <a href="https://artificialanalysis.ai/leaderboards/models">Artificial Analysis leaderboard</a>, <a href="https://artificialanalysis.ai/articles/claude-opus-5-5">Opus 5.5 write-up</a>, <a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic pricing</a>.</p>
+        </section>
+        <section class="block">
+          <h2>Speed</h2>
+          <p>The wait is two passes, one after the other, with thinking turned on. Artificial Analysis measured Opus 5.5 at high effort at 75 tokens a second, about 38 seconds to the first chunk, and about 45 seconds for the whole reply, on their task. At maximum effort the same model took about 725 seconds before the first chunk. Skillify sets effort to high, on Opus 5, twice. I did not find a measured latency for a Skillify packet. A shorter packet should start sooner than a giant benchmark. Two passes means the PM waits for the first reply, then waits again. The hardware fact still holds: each new token re-reads the weights, and a long think is a long row of tokens.</p>
+          <p class="note">Seen in the Skillify files: two passes, effort high, 16,384 token cap each. Source: <a href="https://artificialanalysis.ai/leaderboards/models">Artificial Analysis speed columns</a>. [No Skillify stopwatch in the files I used.]</p>
+        </section>
+        <section class="block">
+          <h2>Cost</h2>
+          <p>Claude API list price for Opus 5 is $5 per million input tokens and $25 per million output tokens. Opus 5.5 is $4 and $20. Cache reads on Opus 5.5 are $0.20 per million. I could not find a separate Bedrock line item for <code>anthropic.claude-opus-5</code>. Use the Claude API list as the stand-in, and ask AWS for the Bedrock price before you budget.</p>
+          <div class="formula">two full replies = 2 × 16,384 / 1,000,000 × $25 = $0.82</div>
+          <p>That $0.82 is the output ceiling if both passes write every token the code allows, at the Opus 5 output price. A shorter think costs less, in proportion. Input is extra, at $5 per million, and the packet is the short one described above. I did not count its tokens, so I am not putting an input dollar figure here. A failed Opus call that falls through to Grok is a second bill. [Couldn't get a live Grok 4.6 price. Look up <code>x-ai/grok-4.6</code> on OpenRouter.]</p>
+          <p>There is no GPU invoice on this path. The cost grows with the number of decisions and with how long the model thinks, not with a card sitting idle.</p>
+          <p class="note">Sources: <a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic pricing</a>. The $0.82 line is arithmetic on that list price and the cap in the Skillify files, not a measured invoice.</p>
+        </section>
+        <section class="block">
+          <h2>Setup, and who else is in the room</h2>
+          <p>This path is already how the live call is built. The companies in the room are OpenRouter, Amazon Web Services or Google for the machine, Anthropic for the weights and the usage policy, and xAI on the days the fallback fires. A portfolio manager, or someone else qualified, has to be in the room too if the output is going to be treated as a decision, because that is the condition in Anthropic’s finance rule.</p>
+          <p>Setup cost is an account, a key, and the code that already exists. The ongoing work is watching suspensions, outages, and the bill. The thing that does not fit the other headings: Anthropic forbids using Claude’s outputs to train another model unless they have agreed. Copying a year of Skillify replies into an open file, to make a faster local model, needs their permission first. Your own written decisions are a different pile. Those are yours.</p>
+          <p class="note">Source: the distillation ban is in the <a href="https://www-cdn.anthropic.com/files/4zrzovbb/website/6ae2f5bb8675bcd9fac006125817ba1393b396e4.pdf">Usage Policy PDF</a>, under the universal standards.</p>
+        </section>
+      </div>
+
+      <div class="subpanel" id="sub-rent">
+        <section class="block">
+          <h2>Privacy</h2>
+          <p>You download an open-weight file and a runner on someone else’s GPU does the multiplications. The prompt does not go to Anthropic. It does sit on a disk the rental company can read. A marketplace host, the kind Vast.ai brokers, is some other person’s machine. RunPod’s Secure Cloud is RunPod’s own machines, which is a named company rather than a stranger, and they can still see the box. Zero data retention, in the API sense, is not what this is. The host has the machine for the whole rental.</p>
+          <p>For Skillify that machine would hold the book, the stance, and any examples you loaded for fine-tuning. The check titles and the customer packet are the easy part to copy. The host does not automatically receive the private write-ups of the checks unless you put those files on the box.</p>
+          <p class="note">Seen in the Skillify files: the guided pass sends check titles, not the private heuristic bodies. Sources: <a href="https://www.runpod.io/pricing">RunPod pricing</a>, <a href="https://vast.ai/article/how-much-does-it-cost-to-rent-a-gpu-in-the-cloud-live-pricing-guide">Vast.ai live rental guide</a>.</p>
+        </section>
+        <section class="block">
+          <h2>Who can stop it</h2>
+          <p>The rental company can switch the machine off. Non-payment, their own rules, a full data centre, or a marketplace host taking the card back. Anthropic’s usage policy does not govern an open file you run yourself. Their finance rule is not the thing that cuts you off here. The rental company’s terms are. A PM waiting on a decision is then waiting on that company’s uptime, not on an API key.</p>
+          <p>You can start another rental. You cannot make the first company keep the machine on. The weight file, if you also keep a copy somewhere you control, survives the shutdown. The running job does not.</p>
+        </section>
+        <section class="block">
+          <h2>Quality</h2>
+          <p>Quality follows the file you load, not the fact that you rented. On the same Artificial Analysis index, the open-weight front is MiMo-V2.6-Pro at 46, GLM-5.3 max at 45, Kimi K3 max at 44, against Opus 5.5 high at 54 and Opus 5.5 max at 58. Those open files are the huge ones from the models tab. They need a row of data-centre GPUs. A single 24 GB card, at 4-bit, holds on the order of a few tens of billions of weights once you leave room for the KV cache. That is a smaller model. DeepSeek V4.1 Flash max, at 39 on the index, is the shape of “faster, further from the front.”</p>
+          <p>I could not find, on the leaderboard page, the VRAM each of those open files needs. Use the hardware formula once the lab publishes the weight count: 4-bit gigabytes are about billions of weights times 0.5, plus the KV cache, plus spare. A short Skillify packet does not need a million-token context. A long one, with a fat book and many sleeves, grows the KV cache and can push a tight card over the edge.</p>
+          <p>Fine-tuning is available, because you hold the file. A later pass on your own decided books teaches the habit: the JSON, the sleeves, the way a flat book should look. LoRA freezes the original weights and trains a small set of extra numbers, which often fits on the same card that can already run the file. It does not move a 39 to a 58. It makes a smaller model more like your desk. Do that on practice packets first. The private books go on only after the answers are good enough, and on a rented box the host can see those examples.</p>
+          <p class="note">Sources: <a href="https://artificialanalysis.ai/leaderboards/models">Artificial Analysis</a>, <a href="https://arxiv.org/abs/2106.09685">Hu et al., LoRA</a>. The VRAM sentence uses the formula already on the hardware tab.</p>
+        </section>
+        <section class="block">
+          <h2>Speed</h2>
+          <p>One pass instead of two is a real cut, if you drop the unguided baseline. The baseline is how Skillify compares a blank book with the guided one. Keeping both means two waits, on your card. Hosted open models on Artificial Analysis, which is their cloud not your rental, did: GLM-5.3 max about 82 tokens a second and 33 seconds for the whole reply; Kimi K3 max about 41 tokens a second and 64 seconds; DeepSeek V4.1 Flash max about 217 tokens a second and 13 seconds. A card you rent will differ with memory bandwidth. I do not have a stopwatch for a Skillify packet on a 4090.</p>
+          <p class="note">Source: <a href="https://artificialanalysis.ai/leaderboards/models">Artificial Analysis</a>. [No rental-GPU measurement for a Skillify packet.]</p>
+        </section>
+        <section class="block">
+          <h2>Cost</h2>
+          <p>RunPod’s pricing page, read 9 October 2026, listed an RTX 4090 at $0.74 an hour for 24 GB of VRAM, 41 GB of ordinary memory, and 6 vCPUs. An H100 PCIe was $2.89 an hour. An H200 was $4.59 an hour. An H100 SXM was $3.29 an hour. Vast.ai’s own guide publishes a live floor that moves about hourly. On the copy I read, the floor and the median were: RTX 4090 from $0.14, median $0.49; H100 SXM from $1.73, median $2.24; H200 from $2.76, median $5.00. Treat the Vast numbers as a screen you recheck, not a contract.</p>
+          <div class="formula">always on ≈ hourly price × 720 hours</div>
+          <p>On the RunPod listings that is $532.80 a month for one 4090, $2,080.80 for one H100 PCIe, and $3,304.80 for one H200. [estimate: arithmetic on those hourly listings, for a card that is never switched off.] A card you start for a few hours of practice text is the hourly price times those hours. Storage on RunPod was listed from $0.05 a GB a month. A multi-GPU box for a GLM-class or Kimi-class file was not given a single hourly total I can stand behind. Ask RunPod, Vast, and Lambda for an 8-GPU quote.</p>
+          <p>[Couldn't get Lambda’s own price table in this pass.] A secondary comparison dated around August 2026 put Lambda H100 on-demand near $3.29 to $3.99 per GPU-hour. That is a lead, not a quote. Ask <a href="https://lambda.ai/">Lambda</a>.</p>
+          <p class="note">Sources: <a href="https://www.runpod.io/pricing">RunPod</a>, <a href="https://vast.ai/article/how-much-does-it-cost-to-rent-a-gpu-in-the-cloud-live-pricing-guide">Vast.ai</a>, <a href="https://tech-insider.org/runpod-vs-lambda-vs-vast-ai-2026/">secondary Lambda comparison</a>.</p>
+        </section>
+        <section class="block">
+          <h2>Setup, and who else is in the room</h2>
+          <p>You need a runner, a weight file whose license allows this commercial use, and a change so Skillify talks to your machine instead of OpenRouter. I did not clear the licenses for MiMo, GLM, Kimi, or DeepSeek. Read the file’s license before a PM relies on it. The companies are the GPU host, the lab that published the weights, and whoever operates the runner. There is no Anthropic key in the loop, so their usage policy is not what stops the box. Their ban on distillation still applies if the training examples are Claude’s replies.</p>
+          <p>A first check is a few hours on one 24 GB card and old packets that are not live books. Wiring it into the product, watching the host, and deciding whether the baseline pass stays on Opus, is the slow part. Days, not a morning, if the JSON has to match what the desk already trusts. Low concurrency is in your favour: one card can serve one decision at a time. Growth is a queue or a second card, still on someone else’s premises.</p>
+        </section>
+      </div>
+
+      <div class="subpanel" id="sub-own">
+        <section class="block">
+          <h2>Privacy</h2>
+          <p>The weight file and the prompt stay on a computer you own. No API company has to see the book. No rental host has the disk. That is the option that matches the privacy you described: the value is the judgment, the judgment is easy to copy, and the copy happens when the prompt leaves. Fine-tuning examples stay on that same machine. The lab that published the weights already had the original file. They do not receive your books unless you send them.</p>
+          <p>What still leaves, if you let it, is anything the runner itself phones home, or a backup you put in someone else’s cloud. A machine you own does not stay private by magic. It stays private if the network path for the prompt is the machine itself.</p>
+        </section>
+        <section class="block">
+          <h2>Who can stop it</h2>
+          <p>Anthropic cannot revoke a file that is already on your disk, and they cannot see the call. An open-model lab can stop publishing new files. The copy you have keeps answering. The license can still forbid a use. A landlord, a power cut, or a dead card stops the machine. Nobody’s usage-policy team stops it because they think you are giving financial advice. That cutoff, the one that matters if PMs are waiting, is gone.</p>
+          <p>You are then the person who keeps it up. A failed fan or a full disk is your outage. There is no Grok fallback unless you build one.</p>
+        </section>
+        <section class="block">
+          <h2>Quality</h2>
+          <p>Same open-file ladder as the rented tab. The Intelligence Index gap is a property of the weights, not of who owns the board. Opus 5.5 high at 54, best open weights around 44 to 46, a smaller fast open model at 39. Owning the card lets you run that file with the prompt at home. It does not raise the index.</p>
+          <p>What ownership adds is training without a host reading the examples. Your own past decisions, written as the reply you wanted, are a fine-tuning set. LoRA is the practical pass on one card. Full retraining of every weight needs much more VRAM than answering, because the card must also keep the gradient. A 24 GB board is the trial size. A file near the open-weight front is a row of boards in a room that can feed them and take the heat, which is the data centre from the hardware tab.</p>
+          <p>Training on Claude’s old replies, to steal the frontier habit, is the distillation ban. Do not do that without Anthropic’s permission. Train on decisions your desk actually made.</p>
+          <p class="note">Sources: <a href="https://artificialanalysis.ai/leaderboards/models">Artificial Analysis</a>, <a href="https://arxiv.org/abs/2106.09685">LoRA</a>, <a href="https://www-cdn.anthropic.com/files/4zrzovbb/website/6ae2f5bb8675bcd9fac006125817ba1393b396e4.pdf">Usage Policy, distillation</a>.</p>
+        </section>
+        <section class="block">
+          <h2>Speed</h2>
+          <p>The card’s memory bandwidth sets the tokens per second, as on the hardware tab. A smaller file is faster because each token re-reads less. A fine-tune does not make the same file faster. It changes the weights, not the number of multiplications in a way you can budget. Dropping the second pass, and dropping a long think, is what shortens the wait. I have no measurement of a Skillify packet on hardware you would own. The hosted open-model times in the rented tab are the closest published figures, and they are not your box.</p>
+        </section>
+        <section class="block">
+          <h2>Cost</h2>
+          <p>Shop listings for a 24 GB RTX 4090, read 9 October 2026. Clove Technology listed an ASUS TUF at £1,851.46 for UK consumers, and £1,542.88 ex VAT on the rest-of-world line, and said fewer than 10 were left. Overclockers listed a Zotac Trinity at £1,829.99 including VAT, on pre-order. Those are the card only. A PC around it, a second-hand card, and VAT treatment for a company are separate. Confirm both pages before paying. <a href="https://www.clove.co.uk/products/asus-tuf-gaming-nvidia-geforce-rtx-4090-24-gb-gddr6x-graphics-card">Clove</a>. <a href="https://www.overclockers.co.uk/zotac-geforce-rtx-4090-trinity-24gb-gddr6x-pci-express-graphics-card-gx-13e-zt.html">Overclockers</a>.</p>
+          <p>[Couldn't get a live shelf price for an H100 or an H200.] Ask NVIDIA, Lambda, and a server builder for a one-board and an eight-board quote. Do not use an old headline as the price. The rental rates above are the cost of waiting while that quote comes back: about $533 a month for a RunPod 4090 left on, before you own anything.</p>
+          <p>Power is extra. A shop listing for a 4090 states a 450 W draw. [estimate] kilowatt-hours are 0.45 times hours running, times your tariff. I did not pull a UK tariff. Ask the supplier, or check the current Ofgem cap, and multiply. A row of data-centre cards is a different quote: power, cooling, and the room.</p>
+          <p class="note">The 450 W figure is the TDP on a retailer listing, not a measured wall reading. <a href="https://etechiezone.co.uk/product/nvidia-rtx-4090-24gb">One listing that states 450 W</a>. Confirm on NVIDIA’s own 4090 spec sheet before you size a circuit.</p>
+        </section>
+        <section class="block">
+          <h2>Setup, and who else is in the room</h2>
+          <p>The companies shrink to the shop that sells the card, the lab behind the weight file, and you. No OpenRouter, no AWS account in the decision path, no Anthropic key. You install a runner, load the file, and point Skillify at that machine. The license is the remaining outside rule. I have not cleared one for commercial portfolio work.</p>
+          <p>This is the slow setup. Buying, power, cooling, and a week of practice packets before a live book. It is also the setup where a suspended API key cannot take the desk down. Keep one frontier pass only if you still want the blank-book comparison, and accept that those packets leave. If the owned file fails the old packets, a bigger card does not fix the judgment. It only fits a larger file.</p>
+        </section>
+      </div>
     </article>
   </div>
 </div>
@@ -683,6 +816,15 @@ tabs.forEach((button) => {
   button.addEventListener("click", () => {
     tabs.forEach((item) => item.classList.toggle("on", item === button));
     panels.forEach((panel) => panel.classList.toggle("on", panel.id === button.dataset.tab));
+  });
+});
+
+const subs = document.querySelectorAll("[data-sub]");
+const subpanels = document.querySelectorAll(".subpanel");
+subs.forEach((button) => {
+  button.addEventListener("click", () => {
+    subs.forEach((item) => item.classList.toggle("on", item === button));
+    subpanels.forEach((panel) => panel.classList.toggle("on", panel.id === `sub-${button.dataset.sub}`));
   });
 });
 
