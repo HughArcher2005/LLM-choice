@@ -316,17 +316,31 @@ svg { width: 100%; height: auto; display: block; }
       </section>
 
       <section class="block">
-        <h2>The card is a calculator with its own memory.</h2>
-        <p>Two parts matter. The chip does the multiplications. The memory beside it, called VRAM, holds the weights while the chip works. If the file does not fit in that memory, that card cannot run the model.</p>
+        <h2>One GPU is one board.</h2>
+        <p>When people count GPUs, they count boards. One board has one calculator chip, and several smaller memory chips beside it. Those memory chips, added together, are the VRAM. A 4090 is one chip plus twelve memory chips of 2 GB each, which is 24 GB. That whole board is one GPU. The chip on that board uses only the memory on that board.</p>
         <figure>
-          <svg viewBox="0 0 560 140" role="img" aria-label="A chip next to a block of memory on one card">
-            <rect x="16" y="24" width="520" height="92" rx="16" fill="none" stroke="#1c1915" stroke-width="1.5"/>
-            <rect x="40" y="44" width="160" height="52" rx="8" fill="#1d4e89"/>
-            <text x="120" y="75" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="14">chip · the sums</text>
-            <rect x="240" y="44" width="260" height="52" rx="8" fill="#0f6e56"/>
-            <text x="370" y="75" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="14">memory · the weights</text>
+          <svg viewBox="0 0 560 170" role="img" aria-label="One GPU board with one calculator chip and twelve memory chips">
+            <rect x="16" y="16" width="528" height="120" rx="16" fill="none" stroke="#1c1915" stroke-width="1.5"/>
+            <text x="32" y="40" font-family="Outfit, sans-serif" font-size="13" fill="#5c564c">one GPU</text>
+            <rect x="32" y="52" width="150" height="64" rx="8" fill="#1d4e89"/>
+            <text x="107" y="88" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="14">one chip</text>
+            <g fill="#0f6e56">
+              <rect x="210" y="52" width="36" height="28" rx="4"/>
+              <rect x="252" y="52" width="36" height="28" rx="4"/>
+              <rect x="294" y="52" width="36" height="28" rx="4"/>
+              <rect x="336" y="52" width="36" height="28" rx="4"/>
+              <rect x="378" y="52" width="36" height="28" rx="4"/>
+              <rect x="420" y="52" width="36" height="28" rx="4"/>
+              <rect x="210" y="88" width="36" height="28" rx="4"/>
+              <rect x="252" y="88" width="36" height="28" rx="4"/>
+              <rect x="294" y="88" width="36" height="28" rx="4"/>
+              <rect x="336" y="88" width="36" height="28" rx="4"/>
+              <rect x="378" y="88" width="36" height="28" rx="4"/>
+              <rect x="420" y="88" width="36" height="28" rx="4"/>
+            </g>
+            <text x="32" y="156" font-family="Outfit, sans-serif" font-size="13" fill="#5c564c">twelve memory chips · 24 GB together · this is the VRAM</text>
           </svg>
-          <figcaption>The chip is fast only while the weights are already next to it. Fetching them from ordinary computer memory is much slower.</figcaption>
+          <figcaption>One chip does the sums. The twelve small chips hold the weights. Together they are one GPU. If the model file is bigger than that 24 GB, this board cannot run it alone.</figcaption>
         </figure>
       </section>
 
@@ -361,7 +375,7 @@ svg { width: 100%; height: auto; display: block; }
 
       <section class="block">
         <h2>A data centre is many cards, plus power and cold air.</h2>
-        <p>When the file is larger than one card, the model is split across several cards. Those cards need a fast cable between them, a rack, a large power supply, and cooling. That room is a data centre. A laptop has none of this. A single gaming card on a desk is the small version: one chip, about 24 GB, enough for a smaller open model.</p>
+        <p>When the file is larger than one GPU, the model is split across several boards. Four GPUs means four chips and four separate pools of memory. The chip on one board cannot use the memory on the next board. Those boards need a fast cable between them, a rack, a large power supply, and cooling. That room is a data centre.</p>
         <figure>
           <svg viewBox="0 0 560 120" role="img" aria-label="Four cards in a rack, linked, under a power and cooling label">
             <rect x="20" y="28" width="90" height="48" rx="8" fill="#0f6e56"/>
