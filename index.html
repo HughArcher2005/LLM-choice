@@ -165,7 +165,13 @@ svg { width: 100%; height: auto; display: block; }
         <dt>GPU</dt>
         <dd>One board: one chip plus that board’s VRAM. Counting GPUs means counting boards. The chip on one board cannot use the memory on another board.</dd>
         <dt>Byte</dt>
-        <dd>A small unit of memory. At the usual half-precision, one weight takes 2 bytes. A billion weights is about 2 GB.</dd>
+        <dd>A small unit of memory. At half precision, one weight takes 2 bytes. A billion weights is about 2 GB.</dd>
+        <dt>Bit</dt>
+        <dd>A smaller step than a byte. One byte is 8 bits. At 4 bits, one weight takes about half a byte, so the file is about a quarter of the half-precision size.</dd>
+        <dt>Half precision</dt>
+        <dd>Storing each weight in 16 bits, which is 2 bytes. This is the usual size before quantization. A billion weights is then about 2 GB.</dd>
+        <dt>Gigabyte</dt>
+        <dd>About a billion bytes, written GB. The memory formulas on these pages are in gigabytes.</dd>
         <dt>Data centre</dt>
         <dd>A room of GPU boards, with power, cooling, and fast cables between the boards. A frontier-size model is split across many boards there.</dd>
         <dt>API</dt>
@@ -182,6 +188,10 @@ svg { width: 100%; height: auto; display: block; }
         <dd>Extra memory used while answering, so the model can look back at the prompt and the tokens it has already written. It grows with the length of the conversation, and with how many conversations run at once. The weights do not grow.</dd>
         <dt>License</dt>
         <dd>The rules that come with the weight file. They say who may run it, and for what. A published file is not a promise that every use is allowed.</dd>
+        <dt>Rent</dt>
+        <dd>Paying to use someone else’s GPU for a while. You run the open file. They own the machine, so they can see it and switch it off.</dd>
+        <dt>Practice text</dt>
+        <dd>Sentences used to train a model, or later to try a copy. The practice text is not the model. The weights are. A first self-hosted check uses stand-in sentences that are not private.</dd>
       </dl>
     </article>
   </div>
