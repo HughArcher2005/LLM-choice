@@ -721,7 +721,6 @@ h2 .score {
     <article>
       <p class="kicker">The decision</p>
       <h1>The choice for Skillify</h1>
-      <p>Skillify asks a model for a structured trade book. The value is the judgment in that book, and the book is easy to copy if someone else can read the prompt. Each option below is scored on the same six questions: who can read it, who can stop it, how good the guesses are, how long the PM waits, what it costs, and who you have to deal with to set it up.</p>
       <p>Prices below are list prices and shop listings read on 9 October 2026. A figure marked [estimate] is arithmetic on those listings, or a number I could not find a live quote for. Nothing here is a negotiated Skillify contract.</p>
       <p class="note">Seen in the Skillify files: <code>lib/llm-client.js</code> sends the live call through OpenRouter, pinned to zero-data-retention endpoints on Amazon Bedrock or Google Vertex only. The default model is <code>anthropic.claude-opus-5</code>, with thinking effort set to high. If that call fails on a set list of errors, the same key is retried on Grok 4.6 through xAI only, also marked zero data retention. Direct Anthropic and OpenAI are not live paths. <code>privacy-minimised-anthropic.js</code> runs two passes, baseline then guided, and caps each reply at 16,384 tokens.</p>
 
