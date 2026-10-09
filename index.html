@@ -89,6 +89,9 @@ svg { width: 100%; height: auto; display: block; }
 }
 .switch button.on { background: var(--green); border-color: var(--green); color: white; }
 .note { font-size: 15px; color: var(--muted); }
+.defs { margin: 8px 0 0; }
+.defs dt { font-family: Fraunces, serif; font-size: 26px; margin-top: 22px; }
+.defs dd { margin: 6px 0 0; font-size: 18px; line-height: 1.45; }
 @media (max-width: 860px) {
   .row, .cards { grid-template-columns: 1fr; }
   .top { flex-wrap: wrap; }
@@ -99,11 +102,70 @@ svg { width: 100%; height: auto; display: block; }
 <header class="top">
   <div class="brand">LLM choice</div>
   <nav class="tabs" aria-label="Lessons">
+    <button type="button" data-tab="defs">Definitions</button>
     <button type="button" class="on" data-tab="how">How LLMs work</button>
     <button type="button" data-tab="hardware">The hardware</button>
     <button type="button" data-tab="choice">The choice</button>
   </nav>
 </header>
+
+<div class="panel" id="defs">
+  <div class="layout">
+    <article>
+      <p class="kicker">Words on these pages</p>
+      <h1>Definitions</h1>
+      <p>Short meanings for the words the other tabs keep using.</p>
+      <dl class="defs">
+        <dt>LLM</dt>
+        <dd>A large language model. A program that finishes text. You give it a start, and it keeps guessing the next piece.</dd>
+        <dt>Token</dt>
+        <dd>A chunk of text, usually a word or a piece of a word. The model reads and writes tokens, not single letters.</dd>
+        <dt>Vocabulary</dt>
+        <dd>The fixed list of tokens the model is allowed to write. A guess gives every token in that list a chance.</dd>
+        <dt>Vector</dt>
+        <dd>A list of numbers standing for one token. Tokens that show up in similar sentences get similar lists.</dd>
+        <dt>Attention</dt>
+        <dd>The model looking across the other words in the sentence to decide what the current word means. “Bank” leans on “river” or on “money.”</dd>
+        <dt>Layer</dt>
+        <dd>One pass of looking and mixing. A large model stacks dozens of layers. The last layer produces a score for every possible next token.</dd>
+        <dt>Score</dt>
+        <dd>A raw number for one possible next token. Scores can be any size. They are not chances yet.</dd>
+        <dt>Chance</dt>
+        <dd>A score after it has been turned into a share between 0 and 1. All the chances for the next token add up to 1.</dd>
+        <dt>Softmax</dt>
+        <dd>The formula that turns scores into chances. It boosts the big scores and shrinks the small ones.</dd>
+        <dt>Context</dt>
+        <dd>The stretch of text the model can see at once. It cannot see past that stretch.</dd>
+        <dt>Loss</dt>
+        <dd>How surprised the model was by the real next token. The loss is small when it gave that token a high chance, and large when it almost ignored it.</dd>
+        <dt>Gradient</dt>
+        <dd>The slope of the loss. It says which way each stored number should move so the next guess is less surprised.</dd>
+        <dt>Training</dt>
+        <dd>Showing the model real text, scoring each guess with the loss, and nudging the stored numbers a little. This happens many times. The loss never has to reach zero.</dd>
+        <dt>Weight</dt>
+        <dd>One of the stored numbers inside the model. The weights stay put while the model answers. A new sentence is multiplied by them, and that multiplication produces the chances. They are not the list of possible next tokens.</dd>
+        <dt>Open model</dt>
+        <dd>A file of weights that anyone is allowed to copy and run. The practice text is not the model. The weights are.</dd>
+        <dt>CPU</dt>
+        <dd>The ordinary processor in a computer. It is built for one job at a time: open a file, branch, decide.</dd>
+        <dt>Chip</dt>
+        <dd>The calculator on a GPU board. One board has one chip. The chip does the multiplications.</dd>
+        <dt>VRAM</dt>
+        <dd>The memory on one GPU board. It is several small memory chips added together. The weights sit here while the chip works.</dd>
+        <dt>GPU</dt>
+        <dd>One board: one chip plus that board’s VRAM. Counting GPUs means counting boards. The chip on one board cannot use the memory on another board.</dd>
+        <dt>Byte</dt>
+        <dd>A small unit of memory. At the usual half-precision, one weight takes 2 bytes. A billion weights is about 2 GB.</dd>
+        <dt>Data centre</dt>
+        <dd>A room of GPU boards, with power, cooling, and fast cables between the boards. A frontier-size model is split across many boards there.</dd>
+        <dt>API</dt>
+        <dd>A way to send your text to a company’s computers and get a reply back. Their machines hold the weights. They can store what you sent.</dd>
+        <dt>Prompt</dt>
+        <dd>The text you give the model before it starts guessing. On an API, the prompt leaves your machine. On a GPU you own, it stays there.</dd>
+      </dl>
+    </article>
+  </div>
+</div>
 
 <div class="panel on" id="how">
   <div class="layout">
