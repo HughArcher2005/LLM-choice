@@ -100,6 +100,7 @@ svg { width: 100%; height: auto; display: block; }
   <div class="brand">LLM choice</div>
   <nav class="tabs" aria-label="Lessons">
     <button type="button" class="on" data-tab="how">How LLMs work</button>
+    <button type="button" data-tab="hardware">The hardware</button>
     <button type="button" data-tab="choice">The choice</button>
   </nav>
 </header>
@@ -275,7 +276,104 @@ svg { width: 100%; height: auto; display: block; }
       <section class="block" id="memory">
         <h2>To answer, those numbers have to sit in memory.</h2>
         <p>The weights are large. While the model runs, they sit in fast memory, usually on a GPU. A smaller open model can fit on one card. A frontier-size model needs many cards. Calling an API means the numbers sit on someone else’s cards.</p>
-        <p class="note">The next tab is about who owns the computer that holds these numbers, and who can see the text you type.</p>
+        <p class="note">The next tab is the machine that holds these numbers: a graphics card, its memory, and a room full of them.</p>
+      </section>
+    </article>
+  </div>
+</div>
+
+<div class="panel" id="hardware">
+  <div class="layout">
+    <article>
+      <p class="kicker">The machine</p>
+      <h1>How the hardware runs a model</h1>
+      <p>An LLM is a file of numbers, and a reply is a long run of multiplications. The computer that does this well is a graphics card, a GPU. A normal processor, the CPU, is the wrong shape for that job.</p>
+
+      <section class="block" id="cpu-gpu">
+        <h2>One careful worker, or a crowd doing the same sum.</h2>
+        <p>A CPU is built for one job at a time: open a file, branch, decide. A GPU is built for the same small sum, repeated millions of times. Turning a token into the next token is that kind of sum. The weights are grids of numbers. The card multiplies those grids.</p>
+        <figure>
+          <svg viewBox="0 0 560 150" role="img" aria-label="A CPU is one worker. A GPU is many workers doing the same multiplication.">
+            <rect x="8" y="28" width="160" height="90" rx="12" fill="#1c1915"/>
+            <text x="88" y="70" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="16">CPU</text>
+            <text x="88" y="92" text-anchor="middle" fill="#d9d1c3" font-family="Outfit, sans-serif" font-size="12">one hard job</text>
+            <g fill="#0f6e56">
+              <rect x="220" y="36" width="28" height="28" rx="4"/>
+              <rect x="256" y="36" width="28" height="28" rx="4"/>
+              <rect x="292" y="36" width="28" height="28" rx="4"/>
+              <rect x="328" y="36" width="28" height="28" rx="4"/>
+              <rect x="364" y="36" width="28" height="28" rx="4"/>
+              <rect x="220" y="72" width="28" height="28" rx="4"/>
+              <rect x="256" y="72" width="28" height="28" rx="4"/>
+              <rect x="292" y="72" width="28" height="28" rx="4"/>
+              <rect x="328" y="72" width="28" height="28" rx="4"/>
+              <rect x="364" y="72" width="28" height="28" rx="4"/>
+            </g>
+            <text x="300" y="130" text-anchor="middle" fill="#5c564c" font-family="Outfit, sans-serif" font-size="13">GPU · the same sum, many times</text>
+          </svg>
+          <figcaption>A graphics card was made to colour millions of pixels at once. An LLM uses that same habit on grids of weights.</figcaption>
+        </figure>
+      </section>
+
+      <section class="block">
+        <h2>The card is a calculator with its own memory.</h2>
+        <p>Two parts matter. The chip does the multiplications. The memory beside it, called VRAM, holds the weights while the chip works. If the file does not fit in that memory, that card cannot run the model.</p>
+        <figure>
+          <svg viewBox="0 0 560 140" role="img" aria-label="A chip next to a block of memory on one card">
+            <rect x="16" y="24" width="520" height="92" rx="16" fill="none" stroke="#1c1915" stroke-width="1.5"/>
+            <rect x="40" y="44" width="160" height="52" rx="8" fill="#1d4e89"/>
+            <text x="120" y="75" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="14">chip · the sums</text>
+            <rect x="240" y="44" width="260" height="52" rx="8" fill="#0f6e56"/>
+            <text x="370" y="75" text-anchor="middle" fill="#f3efe4" font-family="Outfit, sans-serif" font-size="14">memory · the weights</text>
+          </svg>
+          <figcaption>The chip is fast only while the weights are already next to it. Fetching them from ordinary computer memory is much slower.</figcaption>
+        </figure>
+      </section>
+
+      <section class="block">
+        <h2>How much memory the file needs.</h2>
+        <p>Each weight is a number. At the usual half-precision, one weight is 2 bytes. A billion weights is about 2 GB. That is the file size before the conversation itself, which also uses a little more memory as the reply grows.</p>
+        <div class="formula">memory in GB ≈ billions of weights × 2</div>
+        <label for="params">Move the size of the model.</label>
+        <input class="slider" id="params" type="range" min="1" max="70" value="7">
+        <p class="big"><span id="param-label">7</span> billion weights · <span id="gb-label">14</span> GB</p>
+        <p class="note" id="fit-label">A single strong gaming card has about 24 GB. This file fits on one card.</p>
+        <figure>
+          <svg viewBox="0 0 560 160" role="img" aria-label="Seven billion weights need about 14 GB. Seventy billion need about 140 GB.">
+            <text x="8" y="28" font-family="Outfit, sans-serif" font-size="14" fill="#1c1915">7 billion</text>
+            <rect x="110" y="12" width="70" height="22" rx="4" fill="#0f6e56"/>
+            <text x="190" y="28" font-family="Outfit, sans-serif" font-size="13" fill="#5c564c">14 GB · fits in 24 GB</text>
+            <text x="8" y="78" font-family="Outfit, sans-serif" font-size="14" fill="#1c1915">70 billion</text>
+            <rect x="110" y="62" width="400" height="22" rx="4" fill="#b54822"/>
+            <text x="110" y="110" font-family="Outfit, sans-serif" font-size="13" fill="#5c564c">140 GB · one 24 GB card cannot hold it</text>
+            <text x="110" y="140" font-family="Outfit, sans-serif" font-size="13" fill="#5c564c">Storing each weight in 4 bits, about half a byte, cuts the file to roughly a quarter.</text>
+          </svg>
+          <figcaption>These are the weights alone, at 2 bytes each. A real reply also keeps a growing note of the conversation, so leave some memory free.</figcaption>
+        </figure>
+      </section>
+
+      <section class="block">
+        <h2>One new token re-reads the whole file.</h2>
+        <p>Writing the next token does surprisingly little new arithmetic. The card reads the weights, multiplies once, and writes one token. Then it reads the weights again for the token after that. So the speed of a single reply follows how fast the memory can be read, not the headline maths speed of the chip.</p>
+        <div class="formula">seconds per token ≈ size of the file / memory read speed</div>
+        <p class="note">A data-centre card and a gaming card can have similar maths speed and very different memory speed. The one with faster memory finishes a token sooner.</p>
+      </section>
+
+      <section class="block">
+        <h2>A data centre is many cards, plus power and cold air.</h2>
+        <p>When the file is larger than one card, the model is split across several cards. Those cards need a fast cable between them, a rack, a large power supply, and cooling. That room is a data centre. A laptop has none of this. A single gaming card on a desk is the small version: one chip, about 24 GB, enough for a smaller open model.</p>
+        <figure>
+          <svg viewBox="0 0 560 120" role="img" aria-label="Four cards in a rack, linked, under a power and cooling label">
+            <rect x="20" y="28" width="90" height="48" rx="8" fill="#0f6e56"/>
+            <rect x="130" y="28" width="90" height="48" rx="8" fill="#0f6e56"/>
+            <rect x="240" y="28" width="90" height="48" rx="8" fill="#0f6e56"/>
+            <rect x="350" y="28" width="90" height="48" rx="8" fill="#0f6e56"/>
+            <path d="M110 52 H130 M220 52 H240 M330 52 H350" stroke="#1c1915" stroke-width="3"/>
+            <text x="20" y="100" font-family="Outfit, sans-serif" font-size="13" fill="#5c564c">four cards sharing one model · power and cooling for the whole rack</text>
+          </svg>
+          <figcaption>One card is a trial. A frontier-size model is a row of cards in a building that can feed them electricity and take the heat away.</figcaption>
+        </figure>
+        <p class="note">The next tab is who owns that machine, and who can see the text you type into it.</p>
       </section>
     </article>
   </div>
@@ -359,6 +457,20 @@ function paintLoss() {
 }
 chance.addEventListener("input", paintLoss);
 paintLoss();
+
+const params = document.getElementById("params");
+function paintMemory() {
+  const billions = Number(params.value);
+  const gb = billions * 2;
+  document.getElementById("param-label").textContent = String(billions);
+  document.getElementById("gb-label").textContent = String(gb);
+  const fit = document.getElementById("fit-label");
+  fit.textContent = gb <= 24
+    ? "A single strong gaming card has about 24 GB. This file fits on one card."
+    : "A single strong gaming card has about 24 GB. This file needs more than one card, or a card with more memory.";
+}
+params.addEventListener("input", paintMemory);
+paintMemory();
 </script>
 </body>
 </html>
