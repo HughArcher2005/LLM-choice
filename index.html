@@ -88,7 +88,13 @@ svg { width: 100%; height: auto; display: block; }
   cursor: pointer;
 }
 .switch button.on { background: var(--green); border-color: var(--green); color: white; }
-.subtabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+.subtabs {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  position: sticky; top: 60px; z-index: 4;
+  margin: 8px 0 0; padding: 10px 0;
+  background: rgba(243,239,228,.94);
+  backdrop-filter: blur(8px);
+}
 .subtabs button {
   font: 600 15px Outfit, sans-serif;
   border: 1px solid var(--line);
@@ -98,9 +104,36 @@ svg { width: 100%; height: auto; display: block; }
   padding: 10px 16px;
   cursor: pointer;
 }
-.subtabs button.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.subtabs button.on { color: var(--paper); }
+#choice[data-place="api"] .subtabs button.on { background: var(--blue); border-color: var(--blue); }
+#choice[data-place="rent"] .subtabs button.on { background: var(--clay); border-color: var(--clay); }
+#choice[data-place="own"] .subtabs button.on { background: var(--green); border-color: var(--green); }
 .subpanel { display: none; }
-.subpanel.on { display: block; }
+.subpanel.on {
+  display: block;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  margin-left: -50vw;
+  padding: 18px max(4vw, calc(50vw - 410px)) 40px;
+  box-sizing: border-box;
+}
+#sub-api { background: #e4eef6; }
+#sub-rent { background: #f6e7df; }
+#sub-own { background: #e3f0ea; }
+#sub-api h2 { color: var(--blue); }
+#sub-rent h2 { color: var(--clay); }
+#sub-own h2 { color: var(--green); }
+.place {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+#sub-api .place { color: var(--blue); }
+#sub-rent .place { color: var(--clay); }
+#sub-own .place { color: var(--green); }
 .note { font-size: 15px; color: var(--muted); }
 .defs { margin: 8px 0 0; }
 .defs dt { font-family: Fraunces, serif; font-size: 26px; margin-top: 22px; }
@@ -674,7 +707,7 @@ svg { width: 100%; height: auto; display: block; }
   </div>
 </div>
 
-<div class="panel" id="choice">
+<div class="panel" id="choice" data-place="api">
   <div class="layout">
     <article>
       <p class="kicker">The decision</p>
@@ -690,6 +723,7 @@ svg { width: 100%; height: auto; display: block; }
       </div>
 
       <div class="subpanel on" id="sub-api">
+        <p class="place">Frontier API</p>
         <section class="block">
           <h2>Privacy</h2>
           <p>The prompt leaves your machine. It goes to OpenRouter, then to Bedrock or Vertex, where Claude Opus 5 holds the weights. The packet is kept short on purpose: a mandate, a few instruments, a short view, a few public prices, and, on the second pass, the titles of the checks. The full private write-ups of those checks are not what the code sends. What does leave is enough to reconstruct the book: the stance, the sizes, and the fact that this PM asked.</p>
@@ -732,6 +766,7 @@ svg { width: 100%; height: auto; display: block; }
       </div>
 
       <div class="subpanel" id="sub-rent">
+        <p class="place">Rented</p>
         <section class="block">
           <h2>Privacy</h2>
           <p>You download an open-weight file and a runner on someone else’s GPU does the multiplications. The prompt does not go to Anthropic. It does sit on a disk the rental company can read. A marketplace host, the kind Vast.ai brokers, is some other person’s machine. RunPod’s Secure Cloud is RunPod’s own machines, which is a named company rather than a stranger, and they can still see the box. Zero data retention, in the API sense, is not what this is. The host has the machine for the whole rental.</p>
@@ -771,6 +806,7 @@ svg { width: 100%; height: auto; display: block; }
       </div>
 
       <div class="subpanel" id="sub-own">
+        <p class="place">Owned</p>
         <section class="block">
           <h2>Privacy</h2>
           <p>The weight file and the prompt stay on a computer you own. No API company has to see the book. No rental host has the disk. That is the option that matches the privacy you described: the value is the judgment, the judgment is easy to copy, and the copy happens when the prompt leaves. Fine-tuning examples stay on that same machine. The lab that published the weights already had the original file. They do not receive your books unless you send them.</p>
@@ -825,6 +861,7 @@ subs.forEach((button) => {
   button.addEventListener("click", () => {
     subs.forEach((item) => item.classList.toggle("on", item === button));
     subpanels.forEach((panel) => panel.classList.toggle("on", panel.id === `sub-${button.dataset.sub}`));
+    document.getElementById("choice").dataset.place = button.dataset.sub;
   });
 });
 
