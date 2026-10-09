@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a language model learns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f3efe4;
+  --ink: #1c1915;
+  --muted: #5e584e;
+  --line: #d9d1c3;
+  --card: #fffdf8;
+  --green: #0f6e56;
+  --clay: #c4552a;
+  --gold: #a16207;
+  --blue: #1d4e89;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: Outfit, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+.deck { height: 100%; overflow: hidden; }
+.slide {
+  display: none;
+  height: 100%;
+  padding: 28px 7vw 88px;
+  overflow: auto;
+}
+.slide.on { display: flex; align-items: center; }
+.inner { width: min(980px, 100%); margin: 0 auto; }
+h1, h2 { font-family: Fraunces, serif; font-weight: 600; letter-spacing: -0.03em; margin: 0; }
+h1 { font-size: clamp(42px, 6vw, 68px); line-height: 0.95; }
+h2 { font-size: clamp(32px, 4vw, 46px); line-height: 1.05; }
+.kicker { color: var(--green); font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; margin: 0 0 12px; }
+p { font-size: 18px; line-height: 1.45; color: var(--ink); }
+.lede { font-size: 22px; max-width: 38rem; }
+.muted { color: var(--muted); }
+.formula {
+  font-family: Fraunces, serif;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px 20px;
+  font-size: 28px;
+  margin: 16px 0;
+}
+.grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 28px; align-items: center; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+}
+.card strong { display: block; font-size: 18px; margin-bottom: 6px; }
+.card p { font-size: 15px; margin: 0; color: var(--muted); }
+.card.buy { border-color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }
+svg { width: 100%; height: auto; }
+.bar-label { font-size: 13px; fill: var(--muted); font-family: Outfit, sans-serif; }
+.nav {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 7vw 18px;
+  background: linear-gradient(transparent, var(--paper) 30%);
+}
+button {
+  font: 600 14px Outfit, sans-serif;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 999px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+button.ghost { background: transparent; color: var(--ink); }
+.dots { display: flex; gap: 6px; }
+.dots i { width: 7px; height: 7px; border-radius: 99px; background: var(--line); display: block; }
+.dots i.on { background: var(--ink); }
+@media (max-width: 800px) {
+  .grid, .cards { grid-template-columns: 1fr; }
+  .slide { padding-top: 18px; }
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<section class="slide on">
+  <div class="inner">
+    <p class="kicker">Lesson 1</p>
+    <h1>How a language model learns</h1>
+    <p class="lede">Start with one word. End with the only hardware question that matters: who holds the numbers.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="inner grid">
+    <div>
+      <p class="kicker">A word</p>
+      <h2>A word is a list of numbers.</h2>
+      <p>The model cannot read letters. It turns each word into a vector, a list of heights. A real model uses thousands of numbers. Four is enough to see the idea.</p>
+    </div>
+    <svg viewBox="0 0 360 220" role="img" aria-label="Four bars standing for the word bank">
+      <text x="0" y="24" font-family="Fraunces, serif" font-size="28" fill="#1c1915">bank</text>
+      <rect x="20" y="90" width="36" height="90" rx="6" fill="#0f6e56"/>
+      <rect x="80" y="50" width="36" height="130" rx="6" fill="#1d4e89"/>
+      <rect x="140" y="120" width="36" height="60" rx="6" fill="#c4552a"/>
+      <rect x="200" y="70" width="36" height="110" rx="6" fill="#a16207"/>
+      <text class="bar-label" x="22" y="200">0.4</text>
+      <text class="bar-label" x="82" y="200">0.9</text>
+      <text class="bar-label" x="142" y="200">0.2</text>
+      <text class="bar-label" x="202" y="200">0.7</text>
+    </svg>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="inner grid">
+    <div>
+      <p class="kicker">The guess</p>
+      <h2>It guesses the next word.</h2>
+      <p>It does not look up an answer. It gives every possible next word a chance. The real next word is the one that was written. This picture is a toy, not a live model.</p>
+    </div>
+    <svg viewBox="0 0 420 220" role="img" aria-label="Chances for the next word">
+      <text x="0" y="28" font-family="Outfit, sans-serif" font-size="16" fill="#5e584e">I sat by the …</text>
+      <text class="bar-label" x="0" y="70">river</text>
+      <rect x="70" y="52" width="248" height="22" rx="6" fill="#0f6e56"/>
+      <text class="bar-label" x="328" y="68">0.62</text>
+      <text class="bar-label" x="0" y="112">bank</text>
+      <rect x="70" y="94" width="96" height="22" rx="6" fill="#1d4e89"/>
+      <text class="bar-label" x="176" y="110">0.24</text>
+      <text class="bar-label" x="0" y="154">other</text>
+      <rect x="70" y="136" width="56" height="22" rx="6" fill="#d9d1c3"/>
+      <text class="bar-label" x="136" y="152">0.14</text>
+    </svg>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="inner">
+    <p class="kicker">The miss</p>
+    <h2>The miss is called the loss.</h2>
+    <p>It is how surprised the model was by the real next word. It is not the gap between two word-numbers, and it is not that gap squared.</p>
+    <div class="formula">loss = −log(chance of the real next word)</div>
+    <p class="muted">Sure and right: the chance is near 1, and the loss is near 0. Sure and wrong: the chance is tiny, and the loss is large.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="inner grid">
+    <div>
+      <p class="kicker">Training</p>
+      <h2>Take a small step downhill.</h2>
+      <p>You never solve for a slope of zero. There are too many inner numbers. Each example moves them a little. The loss never hits zero, because the next word is often unsure.</p>
+      <div class="formula">new = old − step × slope</div>
+    </div>
+    <svg viewBox="0 0 420 240" role="img" aria-label="Steps walking down a curve and stopping above zero">
+      <line x1="36" y1="20" x2="36" y2="200" stroke="#1c1915" stroke-width="1.5"/>
+      <line x1="36" y1="200" x2="390" y2="200" stroke="#1c1915" stroke-width="1.5"/>
+      <text class="bar-label" x="8" y="18">loss</text>
+      <text class="bar-label" x="300" y="222">examples</text>
+      <path d="M48 36 C 120 40, 150 90, 200 120 S 300 168, 360 172" fill="none" stroke="#c4552a" stroke-width="3"/>
+      <circle cx="48" cy="36" r="5" fill="#1c1915"/>
+      <circle cx="140" cy="78" r="5" fill="#1c1915"/>
+      <circle cx="220" cy="132" r="5" fill="#1c1915"/>
+      <circle cx="300" cy="160" r="5" fill="#1c1915"/>
+      <circle cx="360" cy="172" r="6" fill="#0f6e56"/>
+      <text class="bar-label" x="250" y="156">stops above zero</text>
+    </svg>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="inner">
+    <p class="kicker">The machine</p>
+    <h2>Those numbers have to sit in memory.</h2>
+    <p>While the model answers, the inner numbers live on a GPU. One card holds a smaller open model. A frontier-size model needs many cards.</p>
+    <div class="cards">
+      <div class="card"><strong>One card</strong><p>A smaller open model. This is the cheap test, then maybe the box you own.</p></div>
+      <div class="card"><strong>Many cards</strong><p>A frontier open model. A big purchase, and a datacenter, not a laptop.</p></div>
+      <div class="card"><strong>Their cards</strong><p>You call an API. You do not hold the numbers. They do.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="inner">
+    <p class="kicker">The choice</p>
+    <h2>Who can see the prompt, and who can switch it off.</h2>
+    <div class="cards">
+      <div class="card"><strong>API</strong><p>Best quality today. Ordinary APIs can keep the prompt, and they can cut you off.</p></div>
+      <div class="card"><strong>Rent</strong><p>Same open model as buying. The host can see the box and can turn it off. Fine for fake data only.</p></div>
+      <div class="card buy"><strong>Buy</strong><p>The prompt stays on a machine you own. Harder to set up. This is the one that meets both rules.</p></div>
+    </div>
+    <p class="muted">Order: no one else keeps the data, then no one can cut you off, then quality, then cost.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="inner">
+    <p class="kicker">Next</p>
+    <h2>One task. Fake data. Then stop.</h2>
+    <p>Pick one cron where the cheap model was already close. Write a mock with no client names or numbers. Run one open model on a rented card for a few hours, score it blind, and turn the machine off.</p>
+    <p>If it gets near the middle model, talk to the infra advisor about one card you own. Leave the wide gaps on the paid model. Do not buy a pile of cards for everything.</p>
+  </div>
+</section>
+
+</div>
+<div class="nav">
+  <button class="ghost" id="prev" type="button">Back</button>
+  <div class="dots" id="dots"></div>
+  <button id="next" type="button">Next</button>
+</div>
+<script>
+const slides = [...document.querySelectorAll(".slide")];
+const dots = document.getElementById("dots");
+let i = 0;
+slides.forEach((_, n) => {
+  const dot = document.createElement("i");
+  dot.addEventListener("click", () => show(n));
+  dots.appendChild(dot);
+});
+function show(n) {
+  i = Math.max(0, Math.min(slides.length - 1, n));
+  slides.forEach((slide, idx) => slide.classList.toggle("on", idx === i));
+  [...dots.children].forEach((dot, idx) => dot.classList.toggle("on", idx === i));
+  document.getElementById("prev").disabled = i === 0;
+  document.getElementById("next").textContent = i === slides.length - 1 ? "End" : "Next";
+}
+document.getElementById("next").addEventListener("click", () => show(i + 1));
+document.getElementById("prev").addEventListener("click", () => show(i - 1));
+document.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowRight") show(i + 1);
+  if (event.key === "ArrowLeft") show(i - 1);
+});
+show(0);
+</script>
+</body>
+</html>
