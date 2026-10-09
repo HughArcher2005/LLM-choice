@@ -144,6 +144,8 @@ svg { width: 100%; height: auto; display: block; }
         <dd>The slope of the loss. It says which way each stored number should move so the next guess is less surprised.</dd>
         <dt>Training</dt>
         <dd>Showing the model real text, scoring each guess with the loss, and nudging the stored numbers a little. This happens many times. The loss never has to reach zero.</dd>
+        <dt>Instruction tuning</dt>
+        <dd>A later training pass, on examples of the reply a person wanted. The first pass teaches what usually comes next. This pass teaches the model to answer the request.</dd>
         <dt>Weight</dt>
         <dd>One of the stored numbers inside the model. The weights stay put while the model answers. A new sentence is multiplied by them, and that multiplication produces the chances. They are not the list of possible next tokens.</dd>
         <dt>Open model</dt>
@@ -539,6 +541,17 @@ svg { width: 100%; height: auto; display: block; }
           <div class="card"><strong>Open weights</strong><p>You can hold the file. On your own GPU the prompt stays with you. A small file fits one board. A file near the frontier needs many boards.</p></div>
           <div class="card"><strong>Open source</strong><p>Rare. You would get the weights and enough code and data to train that model again. Running a copy does not require that.</p></div>
         </div>
+      </section>
+
+      <section class="block">
+        <h2>What makes one model better.</h2>
+        <p>A better model is one whose weights guess a more useful next token on the job you have. Useful means the reply is right, it does what you asked, and it can keep going without falling apart. Open or closed does not decide that. Three things do.</p>
+        <div class="cards">
+          <div class="card"><strong>What it practiced on</strong><p>The practice text is not stored. The habits are, in the weights. A model that practiced on careful code is better at code. A model that practiced on junk gets good at junk.</p></div>
+          <div class="card"><strong>A second pass</strong><p>The first training only teaches what usually comes next. Instruction tuning is a later pass on examples of a reply a person wanted. That is why one model answers you, and another just continues the sentence.</p></div>
+          <div class="card"><strong>How many weights</strong><p>More weights can hold more patterns. A huge file that was not trained for long enough can lose to a smaller file that was. Extra size also needs more GPUs.</p></div>
+        </div>
+        <p>Better is a job, not a single trophy. The frontier model is the one that wins the hardest jobs today. A smaller open file can still be the one you want when the job is ordinary and the prompt has to stay on your machine.</p>
         <p class="note">The next tab is what changes when you run that file yourself.</p>
       </section>
     </article>
