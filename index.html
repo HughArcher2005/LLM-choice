@@ -191,6 +191,18 @@ h2 .score {
         <dd>The fixed list of tokens the model is allowed to write. A guess gives every token in that list a chance.</dd>
         <dt>Vector</dt>
         <dd>A list of numbers standing for one token. Tokens that show up in similar sentences get similar lists.</dd>
+        <dt>Embedding</dt>
+        <dd>The vector for one token. It is learned during training. It is not a number someone typed in by hand.</dd>
+        <dt>Transformer</dt>
+        <dd>The 2017 design almost every current LLM uses. A stack of layers, and each layer uses attention.</dd>
+        <dt>Pre-training</dt>
+        <dd>The long first pass. The weights start random. The only job is to predict the next token on a huge cleaned pile of text.</dd>
+        <dt>Post-training</dt>
+        <dd>Later passes that teach the model to answer like an assistant. Instruction tuning is one. A preference pass, which keeps the better of two replies, is another.</dd>
+        <dt>Backpropagation</dt>
+        <dd>The walk that computes the gradient for every weight, so the downhill step knows which way to nudge each number.</dd>
+        <dt>Batch</dt>
+        <dd>Several requests on the same GPU at once. The chip does their multiplications together, instead of waiting for one reply to finish before starting the next.</dd>
         <dt>Attention</dt>
         <dd>The model looking across the other words in the sentence to decide what the current word means. “Bank” leans on “river” or on “money.”</dd>
         <dt>Layer</dt>
@@ -290,12 +302,13 @@ h2 .score {
       <section class="block" id="what">
         <h2>It does not look answers up.</h2>
         <p>A dictionary stores meanings. An LLM does not. It has practiced on a huge pile of text, and what remains is a giant list of numbers. Those numbers are good at guessing what piece of text usually comes next.</p>
+        <p>The pile is collected first: books, web pages, code, articles, and the rest. Then it is cleaned. Duplicates go. So does broken or low-quality text. What remains is practice text, not the model.</p>
         <p class="note">The rest of this page is that idea, slowly. Words become pieces. Pieces become numbers. Numbers get adjusted until the guesses are less wrong.</p>
       </section>
 
       <section class="block" id="tokens">
         <h2>Text is chopped into tokens.</h2>
-        <p>A token is usually a word, or a piece of a word. The model never sees “unbelievable” as letters. It sees a few chunks, and each chunk has an ID number.</p>
+        <p>A token is usually a word, a piece of a word, or a mark like a comma. The model never sees “unbelievable” as letters. It sees a few chunks, and each chunk has an ID number.</p>
         <div class="chips" aria-label="unbelievable split into tokens">
           <span class="chip">un<em>token 1</em></span>
           <span class="chip">believ<em>token 2</em></span>
@@ -308,7 +321,7 @@ h2 .score {
         <div class="row">
           <div>
             <h2>Each token becomes a list of numbers.</h2>
-            <p>That list is called a vector. A real model uses thousands of numbers per token. Four is enough to see the idea. Tokens that show up in similar places get similar lists. “Cat” sits nearer “dog” than “invoice”.</p>
+            <p>That list is called a vector, and for a token it is also called an embedding. A real model uses thousands of numbers per token. Four is enough to see the idea. The list is learned. Tokens that show up in similar places get similar lists. “Cat” sits nearer “dog” than “invoice”.</p>
           </div>
           <figure>
             <svg viewBox="0 0 360 230" role="img" aria-label="Cat and dog sit near each other. Invoice sits far away.">
@@ -328,7 +341,7 @@ h2 .score {
 
       <section class="block" id="attention">
         <h2>It looks at the other words to decide.</h2>
-        <p>The word “bank” is ambiguous. The model looks across the sentence and leans on the words that matter. This look is called attention. In 2017 this became the whole design, because looking at every word at once trains well on GPUs.</p>
+        <p>The word “bank” is ambiguous. The model looks across the sentence and leans on the words that matter. This look is called attention. In 2017 attention became the whole design, called a transformer, because looking at every word at once trains well on GPUs. A usual picture is the word “it” in “the programmer fixed the server because it crashed,” leaning back on “server.” That lean is learned. It is not a rule someone wrote.</p>
         <div class="switch">
           <button type="button" class="on" id="show-river">river bank</button>
           <button type="button" id="show-money">money in the bank</button>
@@ -419,7 +432,7 @@ h2 .score {
 
       <section class="block" id="train">
         <h2>Training is a small step downhill, repeated.</h2>
-        <p>The loss is one number. The model is billions of numbers. To make the loss smaller, each number has to move a little. The slope of the loss, called the gradient, says which way. One example nudges every number. The next example nudges them again.</p>
+        <p>The weights start as random numbers. The loss is one number. The model is billions of numbers. To make the loss smaller, each number has to move a little. Backpropagation walks the loss and computes the slope for every weight. That slope is the gradient. It says which way. One example nudges every number. The next example nudges them again. This long first pass is pre-training. A frontier run uses thousands of GPUs for weeks or months. The count labs publish is tokens, often in the trillions, not a neat pile of separate documents.</p>
         <div class="formula">new number = old number − step size × slope</div>
         <figure>
           <svg viewBox="0 0 520 210" role="img" aria-label="Training steps walk down a curve and stop above zero">
@@ -440,7 +453,13 @@ h2 .score {
 
       <section class="block" id="weights">
         <h2>The trained model is the numbers you keep.</h2>
-        <p>The articles and code were the practice text. They are not the model. The model is the weights: the inner numbers after all those steps. Copy that file and you have copied the model. When the file is published for anyone to run, it is called an open model.</p>
+        <p>The articles and code were the practice text. They are not the model. The model is the weights: the inner numbers after all those steps. Copy that file and you have copied the model. When the file is published for anyone to run, it is called an open model. Nobody writes a separate rule for Python, physics, or French. Those patterns were in the practice text, and next-token training stored them in the weights.</p>
+      </section>
+
+      <section class="block">
+        <h2>Pre-training finishes an autocomplete.</h2>
+        <p>A pre-trained model is good at continuing text. It does not yet behave like a helpful assistant. Post-training is the later passes. Instruction tuning shows it questions paired with the reply a person wanted. A preference pass shows two replies and keeps the better one, judged by a person or by an automatic check. When the check can be marked, the math matches or the tests pass, that reward is verifiable. The downhill step is the same. The score it chases is different.</p>
+        <p class="note"><a href="https://arxiv.org/abs/1706.03762">Vaswani et al., 2017</a>, the transformer. <a href="https://arxiv.org/abs/2203.02155">Ouyang et al., 2022</a>, the assistant pass. <a href="https://arxiv.org/abs/2501.12948">DeepSeek-R1</a>, rewards a checker can mark.</p>
       </section>
 
       <section class="block" id="wrong">
@@ -450,7 +469,7 @@ h2 .score {
 
       <section class="block" id="memory">
         <h2>To answer, those numbers have to sit in memory.</h2>
-        <p>The weights are large. While the model runs, they sit in fast memory, usually on a GPU. A smaller open model can fit on one card. A frontier-size model needs many cards. Calling an API means the numbers sit on someone else’s cards.</p>
+        <p>The weights are large. While the model runs, they sit in fast memory, usually on a GPU. A smaller open model can fit on one card. A frontier-size model is split across many cards. Quantization stores each weight in fewer bits so the file takes less room. A busy service batches many requests on those same cards, so one chip works on several replies together. Calling an API means the numbers sit on someone else’s cards.</p>
         <p class="note">The next tab is the machine that holds these numbers: a graphics card, its memory, and a room full of them.</p>
       </section>
     </article>
