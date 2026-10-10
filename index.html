@@ -134,6 +134,15 @@ svg { width: 100%; height: auto; display: block; }
 #sub-api .place { color: var(--blue); }
 #sub-rent .place { color: var(--clay); }
 #sub-own .place { color: var(--green); }
+#experiments[data-place="api"] .subtabs button.on { background: var(--blue); border-color: var(--blue); }
+#experiments[data-place="rent"] .subtabs button.on { background: var(--clay); border-color: var(--clay); }
+#experiments[data-place="own"] .subtabs button.on { background: var(--green); border-color: var(--green); }
+#exp-api { background: #e4eef6; }
+#exp-rent { background: #f6e7df; }
+#exp-own { background: #e3f0ea; }
+#exp-api h2, #exp-api .place { color: var(--blue); }
+#exp-rent h2, #exp-rent .place { color: var(--clay); }
+#exp-own h2, #exp-own .place { color: var(--green); }
 h2 .score {
   font-family: Outfit, sans-serif;
   font-weight: 600;
@@ -258,6 +267,14 @@ h2 .score {
         <dd>A promise that a company does not keep the prompt and the reply after the answer is sent. A request their safety systems flag can still be kept. Every company in the path has to make the promise, or the prompt still sits with the one that did not.</dd>
         <dt>Distillation</dt>
         <dd>Training a new model on another model’s replies, so the new file imitates it. Anthropic’s usage policy requires their permission before Claude’s outputs are used this way.</dd>
+        <dt>Independent variable</dt>
+        <dd>The thing you change on purpose between runs. If two things change at once, you cannot tell which one moved the score.</dd>
+        <dt>Dependent variable</dt>
+        <dd>The thing you measure after the run: the score, the seconds, the dollars.</dd>
+        <dt>Constant</dt>
+        <dd>What you keep the same so the independent variable is the only difference.</dd>
+        <dt>Pass at one</dt>
+        <dd>The first try is the one that counts. The task passes only if that try meets the test. Written pass@1.</dd>
       </dl>
     </article>
   </div>
@@ -873,16 +890,98 @@ h2 .score {
   </div>
 </div>
 
-<div class="panel" id="experiments">
+<div class="panel" id="experiments" data-place="api">
   <div class="layout">
     <article>
       <p class="kicker">Not started</p>
       <h1>Experiments</h1>
-      <p>A rented GPU can train an open file. You do not need to buy a card first. The runner loads the weights, fine-tuning nudges them, and you download the new file, or the small LoRA add-on, when the hour ends. That file is the same kind of file an owned card would write.</p>
-      <p>What the rental does not copy is privacy. The host can see the machine while it trains, including the practice text you upload. A few hours on one 24 GB card is enough to try a small add-on. A normal computer with no GPU can only crawl through a tiny file, so it is not a stand-in for this.</p>
+      <p>The question is which setup Skillify should trust: the frontier API it uses now, an open file on a rented GPU, or that same open file on a GPU you own. No run has been started. The fake Skillify packets are not written yet. The public tests below can be downloaded before those packets exist.</p>
+
       <section class="block">
-        <h2>Nothing queued.</h2>
-        <p>The tasks and the fake data are not written yet. No run has been started.</p>
+        <h2>How a run is done.</h2>
+        <p>Freeze the prompt list before any model sees it. Send that same list to each setup. Record the reply, the seconds from send to finished text, and the dollars. Score without knowing which setup wrote the answer. Then write the numbers here. Do not edit the prompts after the first score.</p>
+        <p>Frontier needs no new machine. The live Skillify path already calls Claude Opus 5. Rented means a card you hire for the hours of the run. Owned means a card you buy later and load with the file the rental already produced. Do not buy a card for round one. A rental can train the weights. It cannot copy the privacy of a machine you own.</p>
+        <p class="note">Seen in the Skillify files: the live call is OpenRouter to a zero-retention Bedrock or Vertex endpoint, model <code>anthropic.claude-opus-5</code>, thinking effort high, two passes, 16,384 token cap each.</p>
+      </section>
+
+      <section class="block">
+        <h2>The variables.</h2>
+        <div class="cards">
+          <div class="card"><strong>Independent variable</strong><p>The setup: frontier API, rented open file, or owned open file. A second change, only on the open file, is base weights versus a LoRA trained on your examples.</p></div>
+          <div class="card"><strong>Dependent variables</strong><p>Rubric score out of 10, pass@1 on a test that checks itself, seconds to finish, and dollars for that run.</p></div>
+          <div class="card"><strong>Constants</strong><p>The same prompts, in the same order. The scorer is blind. Nothing is trained on the test prompts. Temperature and effort are written down and kept. The fake packets, once written, stay frozen.</p></div>
+        </div>
+        <p>The frontier cell changes two things at once: the weights and the host. Rent versus owned can use the same file, so that pair isolates the machine. A score gap between frontier and rented is a gap between files, not a gap between landlords.</p>
+      </section>
+
+      <section class="block">
+        <h2>Scoring rubric.</h2>
+        <p>Each item is 0, 1, or 2. The ten points are the sum. A public test that already has a checker keeps that checker’s pass or fail, and we still time it and cost it. This rubric is for the Skillify book, and for any answer a person has to judge.</p>
+        <div class="cards">
+          <div class="card"><strong>Schema</strong><p>2: the reply is the JSON the desk can read. 1: the fields are there and broken. 0: prose, or a refusal to answer in the shape we asked.</p></div>
+          <div class="card"><strong>Mandate</strong><p>2: it stays inside the instruments and the rules in the packet. 1: one sleeve wanders. 0: it invents a market the packet did not allow.</p></div>
+          <div class="card"><strong>Decision</strong><p>2: a direction and a size, or an explicit flat. 1: a direction with no size. 0: no action a person could check.</p></div>
+          <div class="card"><strong>Grounding</strong><p>2: the reasons use numbers that were in the packet. 1: mixed with figures it made up. 0: the prices are invented.</p></div>
+          <div class="card"><strong>Use</strong><p>2: a portfolio manager could act, or could correctly do nothing. 1: they would have to rewrite it. 0: they would ignore it.</p></div>
+        </div>
+        <p class="note">Two people can score the same blind pile. If they differ by more than 2 points, a third read breaks the tie. This is the small version of a blind ranking. Chatbot Arena does that with a crowd. We do it with the desk. <a href="https://lmarena.ai/">Chatbot Arena</a>.</p>
+      </section>
+
+      <section class="block">
+        <h2>The tests.</h2>
+        <p>Public rankings do not use one exam. Artificial Analysis builds an index from ten evaluations, weighted agents 30, coding 20, general 30, science 20. About 45 percent of that weight is a private test we cannot rerun. We run the public ones. We do not invent an index number of our own. Where they have already published a score for Opus 5.5, that number stays a citation, not our result.</p>
+        <div class="cards">
+          <div class="card"><strong>Skillify book</strong><p>Our packet, scored on the rubric. Blocked until the fake data is written. This is the test the desk actually cares about.</p></div>
+          <div class="card"><strong>Terminal-Bench 4.0</strong><p>66 tasks in a terminal. A task passes only if its own tests pass. Pass@1, three repeats in their method. Public.</p></div>
+          <div class="card"><strong>SciCode</strong><p>288 science coding subproblems. The code has to pass the unit tests. Pass@1.</p></div>
+          <div class="card"><strong>Humanity’s Last Exam</strong><p>2,158 hard questions. An equality checker marks the open answer. Pass@1.</p></div>
+          <div class="card"><strong>GDP.pdf</strong><p>100 tasks over long professional PDFs, 4,592 pages, 1,275 criteria. Credit when the criteria pass.</p></div>
+          <div class="card"><strong>AA-LCR</strong><p>100 questions over documents around 100,000 tokens long. A checker marks the answer.</p></div>
+          <div class="card"><strong>GDPval</strong><p>220 occupational tasks from a public set. Their score is a pairwise Elo, not a simple percent.</p></div>
+          <div class="card"><strong>Held out</strong><p>AA-Briefcase, AutomationBench, the private part of AA-Omniscience, and CritPt’s hidden problems. We do not run these. A public slice is not their index score.</p></div>
+        </div>
+        <p class="note">Sources: <a href="https://artificialanalysis.ai/methodology/intelligence-benchmarking">Artificial Analysis methodology</a>, <a href="https://artificialanalysis.ai/articles/artificial-analysis-intelligence-index-v4-3">index v4.3 weights</a>, <a href="https://www.tbench.ai/?version=4">Terminal-Bench</a>, <a href="https://github.com/harbor-framework/terminal-bench">task repo</a>, <a href="https://huggingface.co/datasets/openai/gdpval">GDPval</a>, <a href="https://huggingface.co/datasets/ArtificialAnalysis/AA-LCR">AA-LCR</a>, <a href="https://arxiv.org/abs/2607.11192">GDP.pdf</a>.</p>
+      </section>
+
+      <div class="subtabs" role="tablist" aria-label="Experiment setups">
+        <button type="button" class="on" data-sub="api">Frontier API</button>
+        <button type="button" data-sub="rent">Rented</button>
+        <button type="button" data-sub="own">Owned</button>
+      </div>
+
+      <div class="subpanel on" id="exp-api">
+        <p class="place">Frontier API</p>
+        <section class="block">
+          <h2>What you do.</h2>
+          <p>Buy nothing. Send each frozen prompt through the live Skillify path and save the reply, the seconds, and the token bill. Two passes means two waits and two bills. Use the Opus 5 list price already on the choice tab to turn tokens into dollars, and mark it [estimate] until the real invoice is attached.</p>
+          <p>You cannot fine-tune this file. The weights stay at the lab. Do not paste these replies into a training set for an open model. That is distillation, and their usage policy asks for permission first.</p>
+          <p class="note">Seen in the Skillify files: <code>lib/llm-client.js</code> and <code>privacy-minimised-anthropic.js</code>.</p>
+        </section>
+      </div>
+
+      <div class="subpanel" id="exp-rent">
+        <p class="place">Rented</p>
+        <section class="block">
+          <h2>What you do.</h2>
+          <p>Open <a href="https://www.runpod.io/pricing">RunPod</a> and rent one RTX 4090. The page listed $0.74 an hour for 24 GB on 9 October 2026. Recheck it before you start the clock. Install a runner. Download a 4-bit open file that leaves room for the KV cache inside those 24 GB. Write the exact file URL in the lab book before the first prompt.</p>
+          <p>Do not download DeepSeek-V4.1-Flash onto that card. The smallest GGUF we found for it is about 246 GB. The official checkpoint is hundreds of gigabytes. That file is a later, multi-GPU rental, after the one-card file has a score. Ask RunPod for the bigger box. Do not invent the hourly total.</p>
+          <p>To test training, stay on the same rental. Freeze a pile of your own example replies that are not the test prompts. Run a LoRA. Download the add-on. Score the base file and the LoRA file on the same tests. The host can see the examples. That is the privacy this condition does not have.</p>
+          <p class="note">Sources: <a href="https://www.runpod.io/pricing">RunPod</a>, <a href="https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash">DeepSeek-V4.1-Flash</a>, <a href="https://huggingface.co/vcruz305/DeepSeek-V4.1-Flash-GGUF">246 GB Q2_K note</a>.</p>
+        </section>
+      </div>
+
+      <div class="subpanel" id="exp-own">
+        <p class="place">Owned</p>
+        <section class="block">
+          <h2>What you do.</h2>
+          <p>Do not buy a GPU for round one. The weights you would own are the file and the LoRA the rental already wrote. Copy them to a disk you control. The owned run is those same weights, the same prompts, and the same rubric, on a card in a machine you own.</p>
+          <p>If that file is worth keeping off a host, the 24 GB cards listed on 9 October 2026 were an ASUS TUF at £1,851.46 on <a href="https://www.clove.co.uk/products/asus-tuf-gaming-nvidia-geforce-rtx-4090-24-gb-gddr6x-graphics-card">Clove</a> and a Zotac at £1,829.99 on <a href="https://www.overclockers.co.uk/zotac-geforce-rtx-4090-trinity-24gb-gddr6x-pci-express-graphics-card-gx-13e-zt.html">Overclockers</a>. Confirm stock and VAT. An H100 still has no shelf price. Until a card is in the room, this column stays blank. A rented run is not an owned result.</p>
+        </section>
+      </div>
+
+      <section class="block">
+        <h2>Results.</h2>
+        <p>Empty. No prompt has been sent.</p>
       </section>
     </article>
   </div>
@@ -898,15 +997,19 @@ tabs.forEach((button) => {
   });
 });
 
-const subs = document.querySelectorAll("[data-sub]");
-const subpanels = document.querySelectorAll(".subpanel");
-subs.forEach((button) => {
-  button.addEventListener("click", () => {
-    subs.forEach((item) => item.classList.toggle("on", item === button));
-    subpanels.forEach((panel) => panel.classList.toggle("on", panel.id === `sub-${button.dataset.sub}`));
-    document.getElementById("choice").dataset.place = button.dataset.sub;
+function wireSubs(root, prefix) {
+  const buttons = root.querySelectorAll("[data-sub]");
+  const panels = root.querySelectorAll(".subpanel");
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      buttons.forEach((item) => item.classList.toggle("on", item === button));
+      panels.forEach((panel) => panel.classList.toggle("on", panel.id === `${prefix}${button.dataset.sub}`));
+      root.dataset.place = button.dataset.sub;
+    });
   });
-});
+}
+wireSubs(document.getElementById("choice"), "sub-");
+wireSubs(document.getElementById("experiments"), "exp-");
 
 const river = ["sat", "by", "the", "river", "bank"];
 const money = ["put", "money", "in", "the", "bank"];
