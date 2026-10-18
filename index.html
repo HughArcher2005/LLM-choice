@@ -173,6 +173,7 @@ h2 .score {
     <button type="button" data-tab="host">Self-hosting</button>
     <button type="button" data-tab="choice">The choice for Skillify</button>
     <button type="button" data-tab="experiments">Experiments</button>
+    <button type="button" data-tab="crons">Cheaper crons</button>
   </nav>
 </header>
 
@@ -1001,6 +1002,57 @@ h2 .score {
       <section class="block">
         <h2>Results.</h2>
         <p>Empty. No prompt has been sent.</p>
+      </section>
+    </article>
+  </div>
+</div>
+
+<div class="panel" id="crons">
+  <div class="layout">
+    <article>
+      <p class="kicker">Product plan</p>
+      <h1>Cheaper crons</h1>
+      <p>A product that sits in front of OpenRouter and makes expensive, repeated jobs cheaper — without a quiet drop in quality. This tab is the build, market, and sell write-up. Nothing here is live software yet.</p>
+
+      <section class="block">
+        <h2>What it is</h2>
+        <p>People run lots of crons on strong models. Many of those jobs are routine. A cheaper model, or plain code, would do. The product watches real cron traffic, tests cheaper options in the background, and only switches when the answer stays good enough.</p>
+        <p>OpenRouter already gives one API key for models from many labs. You change the model name, not the key. Anthropic to OpenAI is fine. That is the switch we use.</p>
+      </section>
+
+      <section class="block">
+        <h2>Build</h2>
+        <p>Ship a thin proxy. The user’s cron points at us. We call OpenRouter with their key (or a key they mint for us). We log the prompt shape, the model, tokens, cost, and a quality score against a gold answer or a judge model.</p>
+        <ol>
+          <li><strong>Classify each cron.</strong> Needs a strong model, can try a mid model, or should leave the LLM path (scrape, rules, code).</li>
+          <li><strong>Shadow test.</strong> For a few days, run the live model and one or two cheaper candidates on the same inputs. Do not change production yet.</li>
+          <li><strong>Gate the switch.</strong> Promote a cheaper model only when the score stays inside a set band for enough samples. Fail closed: stay on the expensive model if unsure.</li>
+          <li><strong>Optional rewrite.</strong> For dead-simple jobs, propose a non-LLM path and show the diff before anyone flips it.</li>
+          <li><strong>Dashboard.</strong> Per cron: current model, candidate, savings so far, quality trend, and a one-click revert.</li>
+        </ol>
+        <p>Hard parts: a quality metric that matches the job, not a generic chat score; safe handling of secrets in prompts; and enough samples before a switch so one lucky cheap reply does not fool the system.</p>
+      </section>
+
+      <section class="block">
+        <h2>Market</h2>
+        <p>Buyers are teams with many scheduled LLM jobs and a rising OpenRouter bill — agent platforms, ops dashboards, scrapers that call models, internal cron fleets. The pitch is simple: same jobs, lower model cost, quality watched.</p>
+        <p>Lead with a number they already feel: “your cron fleet spent £X last month; we aim to cut the model line without rewriting your jobs.” Show one before/after on a real cron. List on Awesome OpenRouter for discovery. Sell next to this site and Control Tower, where cron cost and quality already show up.</p>
+        <p>Do not sell “an OpenRouter plugin.” OpenRouter’s plugins are their own request features (search, PDF, routers). Third parties do not list a paid plugin there. “Become a provider” is for selling inference, not apps.</p>
+      </section>
+
+      <section class="block">
+        <h2>Sell</h2>
+        <p>Billing stays outside OpenRouter. You sell the product yourself.</p>
+        <p><strong>Default:</strong> a low monthly fee — about £2 a month to start — so people try it without arguing about a revenue share. Raise later for teams with bigger fleets.</p>
+        <p><strong>Harder path:</strong> take about 20% of proven savings. Needs trusted cost logs, a clear baseline model, and a dispute path when usage changes. Fine later; messy as v1.</p>
+        <p><strong>One-off license:</strong> possible for self-host, but support and model tables go stale. Prefer monthly.</p>
+        <p>Integration story for the buyer: keep the OpenRouter key, point the cron base URL at the proxy, leave prompts alone. First week is measure and shadow test. After that, cheaper models turn on where the gate passes.</p>
+      </section>
+
+      <section class="block">
+        <h2>Open questions</h2>
+        <p>Product name. Whether Skillify / Control Tower is the first dogfood customer. How strict the quality gate is on finance-shaped packets. Whether non-LLM rewrites ship in v1 or wait.</p>
+        <p class="note">Sources for the OpenRouter facts: <a href="https://openrouter.ai/docs/guides/features/plugins">OpenRouter plugins</a>, <a href="https://openrouter.ai/providers/apply">become a provider</a>, <a href="https://openrouter.ai/docs/guides/community/awesome-openrouter">Awesome OpenRouter</a>. Written 18 October 2026.</p>
       </section>
     </article>
   </div>
