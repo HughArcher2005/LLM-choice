@@ -44,4 +44,4 @@ Gary also named Finance 101 as the questions. Hugh's scenarios are the set being
 
 15 November 2026. Gary has switched his own work to Sol. Grok stays for small tasks. He will copy that rule in from another repo when it is settled. It is not in this repo yet.
 
-He wants this chat moved to a cloud agent, and the link sent to him. That is how he drops in while Hugh is away, including from his phone. The word Claude in his note is that cloud move. The conversation goes with the move. The question files, the handoff, and this plan are still only on this PC. Commit them first if he needs the files. He also needs access to this repo.
+He wants a cloud agent he can open from his phone. The desktop chat would not move. The new agent is started in the browser on this repo. The handoff for that agent is `cloud-handoff.md`. He also needs access to this repo.
